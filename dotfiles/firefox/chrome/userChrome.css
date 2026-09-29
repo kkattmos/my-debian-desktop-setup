@@ -1,0 +1,67 @@
+/* Gooey: match the Ptyxis terminal (Gooey navy #0D101B at 70%, blurred by Blur my Shell).
+   The active theme (Kanagawa Wave True) sets its colors inline on the window, so every
+   override here needs !important. */
+
+:root {
+    /* the window itself stays transparent; the 70% navy is painted on #browser below */
+    background-color: transparent !important;
+
+    /* With a theme active, Firefox paints the page area (#browser, #tabbrowser-tabbox) with
+       --lwt-accent-color, so it must stay transparent for the blur to show through. */
+    --lwt-accent-color: transparent !important;
+    --lwt-accent-color-inactive: transparent !important;
+    --lwt-text-color: #EBEEF9 !important;
+
+    /* the header (tabs, address bar, bookmarks bar = #navigator-toolbox): solid Gooey navy */
+    --toolbox-bgcolor: #0D101B !important;
+    --toolbox-bgcolor-inactive: #0D101B !important;
+    --toolbox-textcolor: #EBEEF9 !important;
+    --toolbox-textcolor-inactive: #EBEEF9 !important;
+    --toolbar-bgcolor: transparent !important;
+    --toolbar-color: #EBEEF9 !important;
+    --tabpanel-background-color: transparent !important;
+    --sidebar-background-color: transparent !important;
+
+    /* tabs */
+    --tab-selected-bgcolor: rgba(31, 34, 45, 0.9) !important;
+    --tab-selected-textcolor: #EBEEF9 !important;
+    --tab-hover-background-color: rgba(235, 238, 249, 0.08) !important;
+
+    /* address bar */
+    --toolbar-field-background-color: rgba(31, 34, 45, 0.8) !important;
+    --toolbar-field-focus-background-color: #1F222D !important;
+    --toolbar-field-color: #EBEEF9 !important;
+    --toolbar-field-border-color: transparent !important;
+    --urlbar-box-bgcolor: #1F222D !important;
+
+    /* buttons and highlights */
+    --toolbarbutton-hover-background: rgba(235, 238, 249, 0.10) !important;
+    --toolbarbutton-active-background: rgba(100, 136, 196, 0.35) !important;
+    --focus-outline-color: #6488C4 !important;
+    --color-accent-primary: #6488C4 !important;
+
+    /* drop-down panels (menu button, downloads, extensions...) can't be blurred: solid navy */
+    --arrowpanel-background: #0D101B !important;
+    --arrowpanel-color: #EBEEF9 !important;
+    --arrowpanel-border-color: #1F222D !important;
+}
+
+/* right-click and other menus */
+menupopup,
+panel {
+    --panel-background: #0D101B !important;
+    --panel-color: #EBEEF9 !important;
+    --panel-border-color: #1F222D !important;
+}
+menupopup :is(menuitem, menu)[_moz-menuactive]:not([disabled="true"]) {
+    background-color: #1F222D !important;
+    color: #EBEEF9 !important;
+}
+
+/* The page area (#browser holds the sidebar and the tab contents) gets the terminal's
+   look: Gooey navy at 70% with Blur my Shell's blur behind it (firefox-esr is on its list).
+   Painted here, directly, because the window background (:root) did not come out at 70%. */
+#browser {
+    background-color: rgba(13, 16, 27, 0.7) !important;
+    background-image: none !important;
+}

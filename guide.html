@@ -1,0 +1,481 @@
+<title>Debian 13 Tiling Laptop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,600;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,750&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#F3F4F6; --surface:#FFFFFF; --ink:#16181D; --muted:#5B6270; --line:#DADDE3;
+  --accent:#B3124E; --accent-soft:#F8E4EC; --accent-ink:#8E0E3E;
+  --term-bg:#15171C; --term-ink:#E3E6EB; --term-dim:#8A93A3; --term-hi:#FF8FB6;
+  --ok:#17775A; --ok-soft:#E1F3EC; --warn:#8F5A00; --warn-soft:#FBF0DA;
+  --track:#E6E8EC;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Atkinson Hyperlegible Next", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, "DejaVu Sans Mono", monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#111318; --surface:#181B21; --ink:#E7E9EE; --muted:#9BA3B1; --line:#2B3039;
+    --accent:#F0588E; --accent-soft:#3A1627; --accent-ink:#FF9EC0;
+    --term-bg:#0A0B0E; --term-ink:#E3E6EB; --term-dim:#7E8796; --term-hi:#FF8FB6;
+    --ok:#4CC79A; --ok-soft:#10291F; --warn:#E3A441; --warn-soft:#2E220D;
+    --track:#242830;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#111318; --surface:#181B21; --ink:#E7E9EE; --muted:#9BA3B1; --line:#2B3039;
+  --accent:#F0588E; --accent-soft:#3A1627; --accent-ink:#FF9EC0;
+  --term-bg:#0A0B0E; --term-ink:#E3E6EB; --term-dim:#7E8796; --term-hi:#FF8FB6;
+  --ok:#4CC79A; --ok-soft:#10291F; --warn:#E3A441; --warn-soft:#2E220D;
+  --track:#242830;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:16px/1.6 var(--f-body);padding-inline:16px;padding-block:0 64px}
+.wrap{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:210px minmax(0,1fr);gap:48px}
+@media (max-width:880px){.wrap{grid-template-columns:minmax(0,1fr);gap:0}}
+
+/* nav */
+nav.toc{position:sticky;top:env(safe-area-inset-top,0px);align-self:start;padding-top:40px;font-size:14px}
+nav.toc p{font:600 11px/1 var(--f-body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
+nav.toc ol{list-style:none;margin:0;padding:0;display:grid;gap:2px;counter-reset:s}
+nav.toc a{display:block;padding:5px 10px;border-radius:6px;color:var(--muted);text-decoration:none}
+nav.toc a:hover,nav.toc a:focus-visible{background:var(--surface);color:var(--ink)}
+nav.toc a.on{color:var(--accent-ink);background:var(--accent-soft)}
+@media (max-width:880px){
+  nav.toc{position:static;padding-top:20px}
+  nav.toc ol{grid-auto-flow:column;grid-auto-columns:max-content;overflow-x:auto;padding-bottom:6px}
+  nav.toc p{display:none}
+}
+
+main{min-width:0;padding-top:40px}
+header.hero{padding-bottom:28px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.eyebrow{font:600 12px/1 var(--f-mono);color:var(--accent);letter-spacing:.04em;margin:0 0 14px}
+h1{font:750 clamp(34px,5.4vw,56px)/1.02 var(--f-display);letter-spacing:-.02em;margin:0 0 16px;text-wrap:balance}
+.lede{font-size:18px;color:var(--muted);max-width:62ch;margin:0}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-top:28px}
+.facts div{background:var(--surface);padding:14px 16px}
+.facts b{display:block;font:650 22px/1.15 var(--f-display);font-variant-numeric:tabular-nums}
+.facts span{font-size:13px;color:var(--muted)}
+
+section{padding-top:48px;scroll-margin-top:16px}
+h2{font:700 28px/1.15 var(--f-display);letter-spacing:-.01em;margin:0 0 6px;text-wrap:balance}
+h2 + .sub{color:var(--muted);margin:0 0 22px;max-width:65ch}
+h3{font:650 18px/1.3 var(--f-body);margin:28px 0 8px}
+p,li{max-width:70ch}
+a{color:var(--accent-ink)}
+code{font:0.88em var(--f-mono);background:var(--track);padding:1px 5px;border-radius:4px;overflow-wrap:anywhere}
+strong{font-weight:700}
+
+/* decision table */
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{text-align:left;vertical-align:top;padding:10px 14px;border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:0}
+th{font:600 12px/1.2 var(--f-body);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);background:var(--bg)}
+td:first-child{font-weight:600;white-space:nowrap}
+.how{color:var(--muted);font-size:14px}
+
+/* disk chart */
+.chart{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 18px 10px}
+.chart-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 20px;align-items:baseline;margin-bottom:12px}
+.chart-head h3{margin:0}
+.key{display:flex;gap:16px;font-size:13px;color:var(--muted)}
+.key i{display:inline-block;width:18px;height:10px;border-radius:2px;vertical-align:-1px;margin-right:6px;background:var(--accent)}
+.key i.est{background:repeating-linear-gradient(45deg,var(--accent) 0 3px,transparent 3px 6px);outline:1px solid var(--accent);outline-offset:-1px}
+.bars{display:grid;gap:4px}
+.bar{display:grid;grid-template-columns:minmax(120px,15rem) minmax(0,1fr) 5.5rem;gap:12px;align-items:center;font-size:14px;position:relative;padding:3px 4px;border-radius:6px;outline:none}
+.bar:hover,.bar:focus-visible{background:var(--bg)}
+.bar .lbl{overflow-wrap:anywhere;line-height:1.3}
+.bar .trk{height:12px}
+.bar .fill{height:12px;border-radius:0 4px 4px 0;background:var(--accent);min-width:3px}
+.bar.est .fill{background:repeating-linear-gradient(45deg,var(--accent) 0 3px,transparent 3px 6px);box-shadow:inset 0 0 0 1px var(--accent)}
+.bar .val{text-align:right;font:13px var(--f-mono);font-variant-numeric:tabular-nums;color:var(--ink)}
+.bar .tip{position:absolute;left:calc(min(15rem,40%) + 16px);top:calc(100% - 2px);z-index:3;background:var(--ink);color:var(--bg);font-size:13px;line-height:1.4;padding:6px 10px;border-radius:6px;max-width:320px;pointer-events:none;opacity:0;transform:translateY(-3px);transition:opacity .12s,transform .12s}
+.bar:hover .tip,.bar:focus-visible .tip{opacity:1;transform:none}
+@media (max-width:560px){.bar{grid-template-columns:minmax(0,1fr) 4.6rem}.bar .trk{grid-column:1 / -1;order:3}.bar .tip{left:8px}}
+.total{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.total div{font-size:14px;color:var(--muted)}
+.total b{display:block;font:700 26px/1.1 var(--f-display);color:var(--ink);font-variant-numeric:tabular-nums}
+.growth{margin-top:14px;font-size:14px;color:var(--muted)}
+
+/* partition map */
+.disk{display:grid;gap:14px}
+.row-label{font:600 13px/1 var(--f-body);color:var(--muted);margin-bottom:6px}
+.strip{display:flex;gap:2px;height:44px;border-radius:8px;overflow:hidden;background:var(--line)}
+.seg{display:flex;align-items:center;justify-content:center;font:600 12px/1.1 var(--f-mono);color:var(--ink);background:var(--track);white-space:nowrap;overflow:hidden;padding:0 4px;min-width:6px}
+.seg.deb{background:var(--accent);color:#fff}
+.seg.boot{background:var(--accent-ink);color:#fff}
+.seg.ubu{background:var(--surface)}
+.seg.free{background:var(--bg);color:var(--muted)}
+.disk-notes{font-size:14px;color:var(--muted);margin-top:4px}
+
+/* steps */
+.step{display:grid;grid-template-columns:44px minmax(0,1fr);gap:16px;padding:22px 0;border-bottom:1px solid var(--line)}
+.step:last-child{border-bottom:0}
+.num{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font:700 15px var(--f-display);background:var(--accent);color:#fff}
+.where{display:inline-block;font:600 11px/1 var(--f-mono);letter-spacing:.04em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:4px 6px;margin-left:8px;vertical-align:3px}
+.step h3{margin:4px 0 8px}
+ol.plain,ul.plain{padding-left:20px;margin:8px 0}
+ol.plain li,ul.plain li{margin:4px 0}
+
+/* terminal */
+.term{position:relative;margin:12px 0;border-radius:8px;background:var(--term-bg);overflow:hidden}
+.term pre{margin:0;padding:14px 16px;overflow-x:auto;font:13.5px/1.6 var(--f-mono);color:var(--term-ink);tab-size:2}
+.term pre .c{color:var(--term-dim)}
+.term pre .h{color:var(--term-hi)}
+.term button{position:absolute;top:8px;right:8px;font:600 12px var(--f-body);color:var(--term-ink);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:5px;padding:4px 9px;cursor:pointer}
+.term button:hover,.term button:focus-visible{background:rgba(255,255,255,.16)}
+details{margin:12px 0;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+details>summary{cursor:pointer;padding:10px 14px;font-weight:600}
+details>div{padding:0 14px 12px}
+
+/* callouts */
+.note{border-radius:8px;padding:12px 14px;margin:14px 0;font-size:15px;background:var(--warn-soft);color:var(--ink)}
+.note b:first-child{color:var(--warn)}
+.note.ok{background:var(--ok-soft)}
+.note.ok b:first-child{color:var(--ok)}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.card h4{margin:0 0 6px;font:650 15px/1.3 var(--f-body)}
+.card p{margin:0;font-size:14px;color:var(--muted)}
+kbd{font:600 12px var(--f-mono);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:1px 5px;background:var(--surface);color:var(--ink)}
+
+.files{columns:2 260px;column-gap:24px;font-size:14px;padding-left:0;list-style:none}
+.files li{break-inside:avoid;margin:0 0 8px}
+.files code{background:none;padding:0;font-weight:600;color:var(--ink)}
+.src{font-size:14px;columns:2 280px;column-gap:24px}
+.src li{break-inside:avoid;margin-bottom:4px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <p>On this page</p>
+  <ol>
+    <li><a href="#decisions">Decisions</a></li>
+    <li><a href="#disk">Disk budget</a></li>
+    <li><a href="#layout">Partition plan</a></li>
+    <li><a href="#install">Install, step by step</a></li>
+    <li><a href="#daily">Daily use</a></li>
+    <li><a href="#later">Removing Ubuntu</a></li>
+    <li><a href="#gotchas">Things that bite</a></li>
+    <li><a href="#kit">Files in the kit</a></li>
+    <li><a href="#sources">Sources</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="hero">
+  <p class="eyebrow">debian-13.7.0-amd64-netinst.iso · GNOME 48 · LUKS2 + Btrfs</p>
+  <h1>A lean Debian 13 laptop with tiling GNOME</h1>
+  <p class="lede">A minimal Debian “trixie” install next to Ubuntu. It runs GNOME with tiling, Ly as the login screen, your course tools, and a Neovim, ZSH and Docker setup for development. The system disk is encrypted with LUKS2 and uses Btrfs with zstd compression. Every package size below comes from Debian 13’s package index, including dependencies.</p>
+  <div class="facts">
+    <div><b>≈ 9.6 GiB</b><span>installed, before compression</span></div>
+    <div><b>≈ 6–7 GiB</b><span>likely on disk with Btrfs zstd:1</span></div>
+    <div><b>185 GB</b><span>Debian partition (old p3)</span></div>
+    <div><b>756 MiB</b><span>ISO download (netinst)</span></div>
+  </div>
+</header>
+
+<section id="decisions">
+  <h2>What this build contains</h2>
+  <p class="sub">Your answers, and how each requirement is met with the fewest packages.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Need</th><th>Choice</th></tr></thead>
+    <tbody>
+      <tr><td>Desktop</td><td>GNOME 48 built from individual packages (not <code>gnome-core</code>, no GDM) with the <strong>Tiling Shell</strong> extension. <span class="how">Forge is looking for a new maintainer, so it isn’t used here. Pop Shell isn’t packaged for Debian.</span></td></tr>
+      <tr><td>Login</td><td><strong>Ly 1.4.1</strong>, built from source with Zig 0.16, Wayland only. <span class="how">It isn’t in Debian 13 or sid.</span></td></tr>
+      <tr><td>Screen recording</td><td>GNOME’s built-in recorder (<kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>Alt</kbd><kbd>R</kbd>). <span class="how">It needs <code>gstreamer1.0-pipewire</code> and <code>plugins-good</code>, which are included. Kooha is an optional add-on if you need audio.</span></td></tr>
+      <tr><td>Apps</td><td>ONLYOFFICE 9.4 (official repo), Wireshark 4.4, Packet Tracer 9.0.1 (the Ubuntu .deb), STM32CubeIDE 1.9.1 (ST’s generic installer), Firefox ESR. No Chrome.</td></tr>
+      <tr><td>Wi-Fi</td><td>NetworkManager profiles copied from your Ubuntu setup. ChulaWiFi uses PEAP / MSCHAPv2 with domain match <code>wifi.it.chula.ac.th</code>. Home Wi-Fi uses a WPA2 password.</td></tr>
+      <tr><td>SeaDrive</td><td>The <strong>CLI</strong> AppImage (3.0.26) runs as a systemd user service and starts at boot (linger). It mounts at <code>~/SeaDrive</code>, the same path as now. <span class="how">It reaches your server over Tailscale.</span></td></tr>
+      <tr><td>PhotoPrism</td><td>The native <code>.deb</code> (no Docker) with SQLite. The service is <em>off</em> until you run <code>svc photoprism on</code>. The <code>photoprism</code> CLI uses the same settings.</td></tr>
+      <tr><td>Docker</td><td>Docker CE 29 + compose + buildx. Off at boot; <code>svc docker on|off</code> toggles it. Its data lives in its own subvolume, which snapshots skip.</td></tr>
+      <tr><td>Neovim</td><td>Upstream 0.12 (Debian ships 0.10, too old for LazyVim) + <strong>LazyVim</strong> with the Python, TypeScript/React, Tailwind, ESLint, Prettier and JSON extras. <code>.ipynb</code> files open through <code>jupytext.nvim</code> and run with <code>molten-nvim</code>.</td></tr>
+      <tr><td>Shell</td><td>Plain zsh (no oh-my-zsh) + Powerlevel10k prompt + autosuggestions, syntax highlighting, fzf and zoxide, <code>ls</code> with file icons (eza) and oh-my-zsh’s git shortcuts (<code>gst</code>, <code>ga</code>, <code>gcmsg</code>, <code>gp</code>…). Everything lives in one <code>.zshrc</code>. Change the prompt look any time with the wizard: <code>p10k configure</code>.</td></tr>
+      <tr><td>Terminal</td><td><strong>Ptyxis 48.5</strong> instead of GNOME Console: the Tokyo Night palette, a slightly see-through background, JetBrainsMono Nerd Font 12. Each new tab opens with a <code>fastfetch</code> system summary, and <code>cava</code> draws audio bars in matching colours. <span class="how">Console 48 only lets you pick a font and light or dark. Ptyxis looks the same but has 200+ palettes, profiles and transparency.</span></td></tr>
+      <tr><td>Disk</td><td>LUKS2 → Btrfs with <code>compress=zstd:1</code>, Snapper snapshots on every apt run (keeps 10), zram swap instead of a swap partition. APT never installs recommended packages.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="disk">
+  <h2>Disk budget</h2>
+  <p class="sub">Installed sizes include every dependency pulled in, counted from the Debian 13.7, Docker and ONLYOFFICE package indexes with recommended packages turned off. Hatched bars are estimates for things installed outside APT.</p>
+  <div class="chart" role="figure" aria-labelledby="chart-title">
+    <div class="chart-head">
+      <h3 id="chart-title">Installed size by component (MiB)</h3>
+      <div class="key"><span><i></i>measured</span><span><i class="est"></i>estimated</span></div>
+    </div>
+    <div class="bars" id="bars"></div>
+    <div class="total">
+      <div><b>9,811 MiB</b>everything above, uncompressed (≈ 9.6 GiB)</div>
+      <div><b>≈ 6–7 GiB</b>expected on disk after zstd:1 (system files typically compress 30–40%)</div>
+      <div><b>≈ 0.2 GiB</b>in the separate 1 GB <code>/boot</code> (kernel + initramfs, outside Btrfs)</div>
+    </div>
+    <p class="growth"><strong>Not counted, because it grows with use:</strong> the SeaDrive cache (the script sets a 10 GB limit), Docker images, PhotoPrism thumbnails and index, STM32Cube MCU firmware packs (about 0.3–1 GB per family), and snapshots (only changed blocks, capped at 10).</p>
+  </div>
+</section>
+
+<section id="layout">
+  <h2>Partition plan</h2>
+  <p class="sub">Debian replaces p3 only. Ubuntu, p4 and p5 are left alone. The encrypted partition goes <em>directly after</em> Ubuntu and <code>/boot</code> goes last, so when you drop Ubuntu later, p2 and Debian can merge into one partition.</p>
+  <div class="disk">
+    <div><div class="row-label">Now: nvme0n1, 954 GB</div>
+      <div class="strip" aria-label="Current layout">
+        <div class="seg" style="flex:1" title="p1 EFI 1 GB">EFI</div>
+        <div class="seg ubu" style="flex:465.7" title="p2 Ubuntu 465.7 GB">p2 Ubuntu 466 G</div>
+        <div class="seg free" style="flex:185.5" title="p3 185.5 GB">p3 185 G</div>
+        <div class="seg" style="flex:150.4" title="p4 150.4 GB">p4</div>
+        <div class="seg" style="flex:150.4" title="p5 150.4 GB">p5</div>
+        <div class="seg" style="flex:1" title="p6 swap 763 MB"></div>
+      </div></div>
+    <div><div class="row-label">After install</div>
+      <div class="strip" aria-label="Layout after install">
+        <div class="seg" style="flex:1">EFI</div>
+        <div class="seg ubu" style="flex:465.7">p2 Ubuntu</div>
+        <div class="seg deb" style="flex:184.5" title="p3: LUKS2 to Btrfs, 184.5 GB">p3 LUKS2 → Btrfs</div>
+        <div class="seg boot" style="flex:3" title="p7: /boot ext4 1 GB">/boot</div>
+        <div class="seg" style="flex:150.4">p4</div>
+        <div class="seg" style="flex:150.4">p5</div>
+        <div class="seg" style="flex:1" title="p6 swap: set to do not use"></div>
+      </div></div>
+    <div><div class="row-label">Later (90-absorb-ubuntu.sh)</div>
+      <div class="strip" aria-label="Layout after absorbing Ubuntu">
+        <div class="seg" style="flex:1">EFI</div>
+        <div class="seg deb" style="flex:650.2" title="p2 grown over old p3: one LUKS2 partition, about 650 GB">p2 LUKS2 → Btrfs, ≈ 650 GB</div>
+        <div class="seg boot" style="flex:3" title="/boot stays where it is">/boot</div>
+        <div class="seg" style="flex:150.4">p4</div>
+        <div class="seg" style="flex:150.4">p5</div>
+        <div class="seg" style="flex:1"></div>
+      </div></div>
+    <p class="disk-notes">Btrfs subvolumes: <code>@rootfs</code> → <code>/</code> (the name the installer gives it), <code>@home</code>, <code>@snapshots</code> → <code>/.snapshots</code>, <code>@var_log</code>, <code>@var_cache</code>, <code>@docker</code> → <code>/var/lib/docker</code>. Snapper snapshots <code>/</code> only, so home, logs, caches and Docker never bloat the snapshots.</p>
+  </div>
+</section>
+
+<section id="install">
+  <h2>Install, step by step</h2>
+  <p class="sub">Keep this page open on your phone during the install. It uses the normal graphical installer, and the command blocks have copy buttons.</p>
+
+  <div class="step"><div class="num">1</div><div>
+    <h3>Prepare from Ubuntu <span class="where">Ubuntu</span></h3>
+    <p><code>00-ubuntu-prep.sh</code> shows what is on p3 and asks before continuing. It downloads the ISO and checks its SHA512 checksum and Debian’s signature. It stashes the kit and your Packet Tracer <code>.deb</code> in <code>~/debian13-stash</code>, then writes the USB after you type <code>YES</code>.</p>
+    <div class="term"><pre>bash debian13-setup/00-ubuntu-prep.sh</pre></div>
+    <p>Also download the <strong>STM32CubeIDE 1.9.1</strong> generic Linux installer from st.com (myST login → Get Software → version 1.9.1 → “STM32CubeIDE-Lnx”) into <code>~/debian13-stash</code>.</p>
+    <div class="note"><b>Before you start:</b> back up anything on p3. Write down your LUKS passphrase using US-keyboard characters only; the boot prompt can’t type Thai.</div>
+  </div></div>
+
+  <div class="step"><div class="num">2</div><div>
+    <h3>Boot the USB → Graphical install <span class="where">Installer</span></h3>
+    <p>The normal installer is all you need. You only type commands after the first boot: the Btrfs subvolumes and compression are set up by <code>10-system.sh</code>. Secure Boot can stay on, since Debian’s shim is signed.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Installer question</th><th>Answer</th></tr></thead>
+      <tbody>
+        <tr><td>Language / location / locale</td><td>English → other → Asia → Thailand → <code>en_US.UTF-8</code> · keyboard: American English</td></tr>
+        <tr><td>Network</td><td><code>wlp2s0</code> → your <strong>home</strong> SSID → WPA/WPA2 PSK. <span class="how">The installer can’t connect to ChulaWiFi because it doesn’t support WPA-Enterprise. You’ll add ChulaWiFi later.</span></td></tr>
+        <tr><td>Root password</td><td>Leave <strong>empty</strong>, so your user gets sudo</td></tr>
+        <tr><td>Time zone</td><td>Asia/Bangkok (usually picked automatically from the location)</td></tr>
+        <tr><td>Partition disks</td><td><strong>Manual</strong>. See below.</td></tr>
+        <tr><td>Package manager</td><td>Scan extra media: no · mirror country Thailand (or <code>deb.debian.org</code>) · proxy: empty</td></tr>
+        <tr><td>Software selection</td><td>Popularity contest no · <strong>untick everything</strong> (no desktop, no standard utilities, no SSH)</td></tr>
+        <tr><td>GRUB</td><td>Installs to EFI automatically. If asked “Force GRUB installation to the EFI removable media path?”: <em>No</em></td></tr>
+      </tbody>
+    </table></div>
+    <h3>Manual partitioning</h3>
+    <ol class="plain">
+      <li>Select <strong>#3 (185.5 GB ext4)</strong> → <em>Delete the partition</em>.</li>
+      <li>In that FREE SPACE → new partition → size: the maximum shown <strong>minus 1 GB</strong> (e.g. <code>184.5 GB</code>) → <strong>Beginning</strong> → Use as: <em>physical volume for encryption</em> (Erase data: <em>no</em> is faster; <em>yes</em> is more thorough). It becomes #3.</li>
+      <li>In the 1 GB FREE SPACE left at the end → new partition, full size → Ext4, mount point <code>/boot</code>. <span class="how">This order matters: the encrypted partition must sit directly after Ubuntu so the two can merge later.</span></li>
+      <li><em>Configure encrypted volumes</em> → create → pick that partition → finish → enter the passphrase twice.</li>
+      <li>At the <strong>top</strong> of the list, under the heading <em>Encrypted volume (nvme0n1p3_crypt)</em>, select the <strong><code>#1</code> line beneath it</strong> → Use as <strong>btrfs</strong>, mount point <code>/</code>, mount option <code>noatime</code>. <span class="how">Not the <code>#3 … crypto</code> line under your NVMe drive: that one is the raw encrypted partition, and selecting it gives “No modifications can be made … in use as physical volume for encrypted volume”. If the heading is missing, finish step 4 first.</span></li>
+      <li>#1 (EFI, 1 GB) must show <em>EFI System Partition</em> and <strong>not</strong> be formatted, because Ubuntu’s bootloader lives there too.</li>
+      <li>#6 (Ubuntu swap) → Use as: <strong>do not use</strong>. Otherwise encrypted data could leak to unencrypted swap.</li>
+      <li>#2, #4, #5: no mount point, not formatted. <em>Finish partitioning</em> → it warns there’s no swap → continue → write changes.</li>
+    </ol>
+  </div></div>
+
+  <div class="step"><div class="num">3</div><div>
+    <h3>First boot: system script <span class="where">Debian, text console</span></h3>
+    <p>After the installer’s reboot you get the disk-password prompt, then a text login. Copy the stash from Ubuntu’s partition (read-only), then run the system script <strong>twice</strong>, with a reboot in between.</p>
+    <div class="term"><pre>sudo mount -o ro /dev/nvme0n1p2 /mnt
+cp -r /mnt/home/<span class="h">&lt;ubuntu-user&gt;</span>/debian13-stash ~ &amp;&amp; sudo umount /mnt
+
+sudo bash ~/debian13-stash/kit/10-system.sh $USER    <span class="c"># run 1: Btrfs layout, ~2 min</span>
+systemctl reboot
+sudo bash ~/debian13-stash/kit/10-system.sh $USER    <span class="c"># run 2: everything else, 10–20 min</span>
+systemctl reboot</pre></div>
+    <p><strong>Run 1</strong> turns on zstd compression and compresses what the installer wrote. It creates the <code>@home</code>, <code>@snapshots</code>, <code>@var_log</code>, <code>@var_cache</code> and <code>@docker</code> subvolumes, copies the current data into them and adds them to <code>/etc/fstab</code>. It checks the new fstab and stops before the reboot if anything looks wrong; the installer’s original is kept as <code>/etc/fstab.installer-bak</code>.</p>
+    <p><strong>Run 2</strong> checks that the subvolumes are mounted and deletes the old copies hidden underneath them. Then it sets up APT (no recommended packages, non-free-firmware); adds the Docker, ONLYOFFICE and Tailscale repos; installs the packages in one go (all 93 names checked against Debian 13); sets up zram, Snapper, GRUB with os-prober, <code>libncurses5</code> from Debian 12, and PhotoPrism; builds Ly; and moves the installer’s Wi-Fi to NetworkManager.</p>
+  </div></div>
+
+  <div class="step"><div class="num">4</div><div>
+    <h3>Log in through Ly → GNOME, then Wi-Fi and user setup <span class="where">GNOME terminal</span></h3>
+    <div class="term"><pre>bash ~/debian13-setup/20-wifi.sh     <span class="c"># ChulaWiFi + home SSIDs, passwords asked, stored root-only</span>
+bash ~/debian13-setup/30-user.sh     <span class="c"># zsh, fonts, Neovim+LazyVim, Tiling Shell, Ptyxis look, Tailscale login, SeaDrive, PhotoPrism</span></pre></div>
+    <p><code>30-user.sh</code> gets a SeaDrive token from your server with your password once (the password isn’t saved). It enables <code>seadrive.service</code> and turns on lingering, so the drive mounts at boot even before you log in. Log out and back in afterwards so zsh, the new groups and the tiling extension take effect, then run <code>bash ~/debian13-setup/32-check.sh</code> to confirm everything took.</p>
+  </div></div>
+
+  <div class="step"><div class="num">5</div><div>
+    <h3>Course tools <span class="where">GNOME terminal</span></h3>
+    <div class="term"><pre>bash ~/debian13-setup/40-stm32cubeide.sh ~/debian13-stash/en.st-stm32cubeide_1.9.1_*.sh.zip
+bash ~/debian13-setup/41-packettracer.sh  ~/debian13-stash/CiscoPacketTracer_901_Ubuntu_64bit.deb</pre></div>
+    <p>CubeIDE 1.9.1 (2022, Eclipse 2021-12) is started through a <code>GDK_BACKEND=x11</code> wrapper, the same trick your Ubuntu install uses, because its GTK layer misbehaves on native Wayland. Say yes to the ST-LINK udev rules during its installer.</p>
+  </div></div>
+</section>
+
+<section id="daily">
+  <h2>Daily use</h2>
+  <p class="sub">The few commands and keys you’ll actually use.</p>
+  <div class="cards">
+    <div class="card"><h4>Record the screen</h4><p><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>Alt</kbd><kbd>R</kbd> starts or stops a full-screen recording, or press <kbd>Print</kbd> and switch to the camera to record an area. Files go to <code>~/Videos/Screencasts</code> as WebM, without audio. For audio, run <code>sudo apt install kooha</code>.</p></div>
+    <div class="card"><h4>Tiling</h4><p>Hold <kbd>Ctrl</kbd> while dragging a window to snap it into a layout. Auto-tiling and keyboard moves are in Extension Manager → Tiling Shell. Workspaces: <kbd>Super</kbd>+<kbd>1–4</kbd>, and add <kbd>Shift</kbd> to move a window there.</p></div>
+    <div class="card"><h4>Terminal look</h4><p>Ptyxis → <kbd>Ctrl</kbd>+<kbd>,</kbd> → Profiles changes the palette and transparency. <code>cava</code> shows audio bars, and <code>fastfetch</code> shows system info (set <code>FASTFETCH_ON_START=0</code> in <code>~/.zshrc</code> to stop it opening every tab). Its layout lives in <code>~/.config/fastfetch/config.jsonc</code>.</p></div>
+    <div class="card"><h4>Docker &amp; PhotoPrism on/off</h4><p><code>svc docker on</code> · <code>svc docker off</code><br><code>svc photoprism on</code> → http://localhost:2342<br><code>photoprism index</code> works in any terminal.</p></div>
+    <div class="card"><h4>SeaDrive</h4><p>Starts at boot automatically. <code>svc seadrive status</code> shows its state; the log is at <code>~/.seadrive/logs/seadrive.log</code>. The cache limit is set in <code>~/.config/seadrive/seadrive.conf</code>.</p></div>
+    <div class="card"><h4>Notebooks in Neovim</h4><p>Open <code>x.ipynb</code> and you get Python with <code># %%</code> cells. <code>\mi</code> picks a kernel, <code>\rc</code> runs the current cell, <code>\ro</code> shows output. To use a project venv: <code>pip install ipykernel &amp;&amp; python -m ipykernel install --user --name proj</code>.</p></div>
+    <div class="card"><h4>Updates &amp; snapshots</h4><p><code>update</code> runs apt with an automatic before/after snapshot. <code>snaps</code> lists snapshots. Thai keyboard: <kbd>Super</kbd>+<kbd>Space</kbd>.</p></div>
+  </div>
+  <details><summary>Rolling back a bad update</summary><div>
+    <p>Boot the Debian USB → Advanced → Rescue mode (or any live USB). Then:</p>
+    <div class="term"><pre>cryptsetup open /dev/nvme0n1p3 root     <span class="c"># p2 once you’ve merged Ubuntu’s space</span>
+mount -o subvolid=5 /dev/mapper/root /mnt
+ls /mnt/@snapshots                     <span class="c"># pick snapshot N (see `snaps`)</span>
+mv /mnt/@rootfs /mnt/@broken
+btrfs subvolume snapshot /mnt/@snapshots/N/snapshot /mnt/@rootfs
+reboot</pre></div>
+    <p>If the bad update included a kernel, run <code>sudo apt install --reinstall linux-image-amd64</code> after booting, because <code>/boot</code> isn’t part of the snapshot.</p>
+  </div></details>
+</section>
+
+<section id="later">
+  <h2>When you drop Ubuntu</h2>
+  <p class="sub">An encrypted partition can only grow at its end, and Ubuntu sits <em>before</em> Debian. So instead of growing Debian backwards, the script moves Debian onto p2 and then grows p2 forward over the old partition. You end up with one encrypted partition of about 650 GB, and Debian keeps running the whole time.</p>
+  <div class="term"><pre>sudo bash ~/debian13-setup/90-absorb-ubuntu.sh    <span class="c"># asks you to type ERASE-UBUNTU</span></pre></div>
+  <ol class="plain">
+    <li>Checks that Debian’s encrypted partition starts right after p2. If it doesn’t (for example, <code>/boot</code> ended up in between), it stops without changing anything.</li>
+    <li>Removes Ubuntu’s boot entry and <code>EFI/ubuntu</code>, then encrypts p2. Use the <strong>same</strong> passphrase, so one prompt unlocks both partitions while data is being moved.</li>
+    <li>Switches <code>/etc/fstab</code> to the Btrfs filesystem UUID, which never changes. The old <code>/dev/mapper/…</code> name disappears after the move.</li>
+    <li>Adds p2 to the filesystem, then runs <code>btrfs device remove</code> on the old partition. Btrfs copies your data onto p2 while you keep working.</li>
+    <li>Deletes the old partition and grows p2 over the gap (<code>growpart</code> → <code>cryptsetup resize</code> → <code>btrfs filesystem resize</code>).</li>
+  </ol>
+  <div class="note ok"><b>Safe to interrupt:</b> each step checks whether it’s already done, so after a crash or reboot you just run the script again. Before every change to <code>/etc/crypttab</code>, it rebuilds the boot image and checks that the image will unlock the right partitions. If that check fails, it stops and tells you not to reboot.</div>
+  <p>Moving the data takes a few minutes for about 20 GB on NVMe. If you’d rather keep two partitions, <code>--join-only</code> just adds p2 to the filesystem with no copying.</p>
+</section>
+
+<section id="gotchas">
+  <h2>Things that bite</h2>
+  <p class="sub">Each of these was checked during research and is handled by the scripts.</p>
+  <div class="cards">
+    <div class="card"><h4>Installer Wi-Fi turns into ifupdown</h4><p>With no desktop selected, the installer writes Wi-Fi into <code>/etc/network/interfaces</code>, and NetworkManager then ignores the card. <code>10-system.sh</code> copies it into a NetworkManager profile and comments the lines out.</p></div>
+    <div class="card"><h4>Debian grabs Ubuntu’s swap</h4><p>Two things switch on Ubuntu’s <em>unencrypted</em> p6. The installer may add it to <code>/etc/fstab</code>, even when it’s set to “do not use”; run 1 of <code>10-system.sh</code> comments it out and drops the resume setting. systemd also turns on every “Linux swap” partition by itself, fstab or not, so <code>10-system.sh</code> masks <code>systemd-gpt-auto-generator</code> (on an existing install, run <code>sudo bash 34-no-ubuntu-swap.sh</code>). p6 itself is untouched, so Ubuntu keeps its swap. <code>32-check.sh</code> should show only <code>/dev/zram0</code>.</p></div>
+    <div class="card"><h4>Ly isn’t packaged</h4><p>It isn’t in Debian 13 or sid. It needs <strong>Zig 0.16.0 exactly</strong> for v1.4.1 (Ly 1.5 will need Zig 0.17). To update later, rebuild with <code>zig build installnoconf</code>.</p></div>
+    <div class="card"><h4>Ly leaks <code>TERM=linux</code></h4><p>Ly starts GNOME from a text console, so the whole desktop inherits <code>TERM=linux</code> and the terminal passes it on. Powerlevel10k then thinks the terminal has 8 colours and no Unicode, and <code>p10k configure</code> skips most of its questions. The <code>.zshrc</code> switches it back to <code>xterm-256color</code> inside graphical terminals.</p></div>
+    <div class="card"><h4>libncurses5 is gone in Debian 13</h4><p>CubeIDE’s bundled <code>arm-none-eabi-gdb</code> needs <code>libncurses.so.5</code>. The script installs Debian 12’s <code>libtinfo5</code> and <code>libncurses5</code> (6.4-4, checksums pinned), the same fix your Ubuntu install uses.</p></div>
+    <div class="card"><h4>Your Seafile server is on Tailscale</h4><p>Your current SeaDrive account points at a 100.x Tailscale address. Tailscale is installed and <code>tailscale up</code> runs before the first SeaDrive start. Both run at boot.</p></div>
+    <div class="card"><h4>PhotoPrism × SeaDrive</h4><p>If PhotoPrism’s originals folder is inside <code>~/SeaDrive</code>, indexing reads every photo, so SeaDrive downloads them all into its cache. Keep originals local (default <code>~/Pictures</code>) or raise the cache limit.</p></div>
+    <div class="card"><h4>Two GRUBs</h4><p>An Ubuntu update can make Ubuntu’s GRUB the default again. Use the laptop’s boot menu key, or <code>sudo efibootmgr -o</code> to put Debian first.</p></div>
+    <div class="card"><h4>Docker group = root</h4><p>Being in the <code>docker</code> group is effectively root access. That’s acceptable on a single-user laptop; remove yourself with <code>gpasswd -d $USER docker</code> if you’d rather type sudo.</p></div>
+    <div class="card"><h4>ChulaWiFi certificate check</h4><p>This copies your Ubuntu profile exactly (domain match, no CA bundle). If it still connects with <code>802-1x.system-ca-certs yes</code>, turn that on for a stronger check.</p></div>
+  </div>
+</section>
+
+<section id="kit">
+  <h2>Files in the kit</h2>
+  <p class="sub">Everything is in the <code>debian13-setup</code> folder. Run the scripts in number order.</p>
+  <ul class="files">
+    <li><code>00-ubuntu-prep.sh</code> checks p3, downloads and verifies the ISO, stashes the installers, writes the USB</li>
+    <li><code>10-system.sh</code> sets up the whole system as root, in two runs (Btrfs layout first, then repos, packages, Ly, zram, Snapper, Docker off)</li>
+    <li><code>20-wifi.sh</code> creates the ChulaWiFi (PEAP) and home WPA2 profiles</li>
+    <li><code>30-user.sh</code> sets up zsh, the Nerd Font, the Sarabun Thai font, Neovim/LazyVim, Tiling Shell, the terminal look, Tailscale, SeaDrive and PhotoPrism</li>
+    <li><code>31-gnome-settings.sh</code> installs Tiling Shell and writes the GNOME settings as system defaults, and resets any value GNOME saved for you at first login that would hide them (run it in a GNOME terminal; called by 30)</li>
+    <li><code>32-check.sh</code> prints a read-only status report of the session, shell, GNOME settings and services</li>
+    <li><code>33-clean-root-leftovers.sh</code> removes what an accidental <code>sudo bash 30-user.sh</code> left in <code>/root</code> (run with sudo; the user scripts now refuse to run as root)</li>
+    <li><code>34-no-ubuntu-swap.sh</code> stops Debian from switching on Ubuntu’s unencrypted swap partition (run with sudo; Ubuntu’s own use of it is unchanged)</li>
+    <li><code>35-thai-font.sh</code> installs Sarabun (Google Fonts) and makes it the Thai fallback for sans-serif and serif, so Thai in Firefox, Discord and GNOME no longer falls back to Loma. Latin text and monospace are unchanged (no sudo; called by 30)</li>
+    <li><code>36-terminal-look.sh</code> installs Ptyxis, fastfetch and cava, and sets the Ptyxis profile (Tokyo Night, 88% opacity, Nerd Font) plus the fastfetch and cava configs. Ptyxis becomes the terminal apps open. Safe to rerun (no sudo unless packages are missing; called by 30)</li>
+    <li><code>40-stm32cubeide.sh</code> installs CubeIDE 1.9.1 with the Wayland wrapper and udev rules</li>
+    <li><code>41-packettracer.sh</code> installs Packet Tracer 9 from the Ubuntu .deb</li>
+    <li><code>90-absorb-ubuntu.sh</code> later merges Ubuntu’s p2 and Debian into one encrypted partition while Debian runs</li>
+    <li><code>dotfiles/</code> holds <code>zshrc</code>, the fastfetch and cava configs, the LazyVim plugins (notebook, web) and the systemd user units</li>
+  </ul>
+</section>
+
+<section id="sources">
+  <h2>Sources</h2>
+  <ul class="src">
+    <li><a href="https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/">Debian 13.7 netinst ISO</a> · <a href="https://www.debian.org/CD/verify">verifying it</a></li>
+    <li><a href="https://codeberg.org/fairyglade/ly">Ly on Codeberg</a> (build options, systemd setup)</li>
+    <li><a href="https://extensions.gnome.org/extension/7065/tiling-shell/">Tiling Shell</a> · <a href="https://github.com/forge-ext/forge">Forge maintainer notice</a></li>
+    <li><a href="https://www.lazyvim.org/">LazyVim requirements</a> · <a href="https://github.com/benlubas/molten-nvim">molten-nvim</a> · <a href="https://github.com/GCBallesteros/jupytext.nvim">jupytext.nvim</a></li>
+    <li><a href="https://help.seafile.com/drive_client/drive_client_for_linux/">SeaDrive CLI for Linux</a></li>
+    <li><a href="https://dl.photoprism.app/pkg/linux/README.html">PhotoPrism Linux packages</a></li>
+    <li><a href="https://helpcenter.onlyoffice.com/installation/desktop-install-ubuntu.aspx">ONLYOFFICE APT repo</a></li>
+    <li><a href="https://docs.docker.com/engine/install/debian/">Docker Engine on Debian</a> · <a href="https://pkgs.tailscale.com/stable/#debian-trixie">Tailscale for trixie</a></li>
+    <li><a href="https://dwaves.de/2026/08/20/how-to-install-cisco-packet-tracer-on-gnu-linux-debian-13/">Packet Tracer 9.0.1 on Debian 13</a></li>
+    <li><a href="https://community.st.com/t5/stm32cubeide-mcus/can-t-launch-project-because-of-libncurses-dependency/td-p/852192">CubeIDE and libncurses.so.5</a></li>
+    <li><a href="https://cryptsetup-team.pages.debian.net/cryptsetup/README.keyctl.html">Debian cryptsetup: decrypt_keyctl</a> · <a href="https://cryptsetup-team.pages.debian.net/cryptsetup/README.initramfs.html">initramfs integration</a></li>
+    <li><a href="https://github.com/benlubas/molten-nvim/blob/main/docs/Notebook-Setup.md">Molten notebook setup</a> · <a href="https://wiki.debian.org/WiFi/HowToUse">Debian Wi-Fi wiki</a></li>
+  </ul>
+</section>
+</main>
+</div>
+
+<script>
+(function(){
+  var data=[
+    ["STM32CubeIDE 1.9.1",2560,1,"Estimate: 1.19.0 takes 3.9 GB on your Ubuntu; 1.9.x is an older, smaller bundle. Plus MCU packs you download."],
+    ["ONLYOFFICE Desktop 9.4",1338,0,"onlyoffice-desktopeditors 9.4.0 (1,256 MiB) + 28 deps incl. gstreamer-libav/ugly and fonts"],
+    ["GNOME 48, minimal",1243,0,"609 packages: shell, session, Settings, Files, Ptyxis, Xwayland, PipeWire, portal, fonts incl. Thai + Noto; no GDM, no gnome-core apps"],
+    ["PhotoPrism (native .deb)",938,0,"photoprism 1.2609.19 Installed-Size, bundles TensorFlow + ONNX runtime"],
+    ["Neovim + LazyVim + LSPs",700,1,"Estimate: Neovim 0.12 (~40 MB), plugins, Mason servers (pyright, ruff, vtsls, eslint, tailwind, prettier), nvim-py venv"],
+    ["System overhead",500,1,"Estimate: APT package lists, locales, journal, man pages"],
+    ["Base system",497,0,"229 packages: required+important, kernel 6.12, Realtek/SOF/Intel firmware, GRUB, LUKS, Btrfs, NetworkManager, zram"],
+    ["Packet Tracer 9.0.1",385,0,"Measured: /opt/pt on your Ubuntu install"],
+    ["Docker CE + compose + buildx",342,0,"docker-ce 29.8, containerd 2.3, compose 5.5, buildx 0.37"],
+    ["Build tools",325,0,"gcc, make, git, curl: Ly build, treesitter parsers"],
+    ["Wireshark 4.4",265,0,"Qt6 GUI + 74 deps"],
+    ["Firefox ESR 140",261,0,"firefox-esr + 1 dep"],
+    ["Python venv + Node.js 20",227,0,"python3-venv/pip/dev, nodejs, npm (mostly small node-* packages)"],
+    ["ZSH + CLI tools",76,0,"zsh, plugins, fzf, ripgrep, fd, lazygit, bat, eza, zoxide, fastfetch, cava"],
+    ["PhotoPrism libraries",63,0,"ffmpeg, exiftool, libheif, sqlite3, libvips"],
+    ["Tailscale",55,0,"tailscale + iptables"],
+    ["Small pieces",40,1,"Snapper, FUSE, ncurses5, SeaDrive CLI (13 MB), Ly, Nerd Font, Sarabun (2 MB), Tiling Shell"]
+  ];
+  var max=data[0][1], box=document.getElementById("bars");
+  data.forEach(function(d){
+    var row=document.createElement("div");
+    row.className="bar"+(d[2]?" est":""); row.tabIndex=0;
+    row.setAttribute("aria-label",d[0]+": "+d[1]+" MiB"+(d[2]?" (estimate)":""));
+    row.innerHTML='<span class="lbl"></span><span class="trk"><span class="fill"></span></span><span class="val"></span><span class="tip" role="tooltip"></span>';
+    row.querySelector(".lbl").textContent=d[0];
+    row.querySelector(".fill").style.width=Math.max(0.6,d[1]/max*100)+"%";
+    row.querySelector(".val").textContent=(d[2]?"~":"")+d[1].toLocaleString("en-US");
+    row.querySelector(".tip").textContent=d[3];
+    box.appendChild(row);
+  });
+
+  document.querySelectorAll(".term").forEach(function(t){
+    var b=document.createElement("button"); b.type="button"; b.textContent="Copy";
+    b.addEventListener("click",function(){
+      var txt=t.querySelector("pre").innerText;
+      var done=function(){b.textContent="Copied";setTimeout(function(){b.textContent="Copy"},1400)};
+      var fallback=function(){var r=document.createRange();r.selectNodeContents(t.querySelector("pre"));var s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent="Selected";};
+      try{navigator.clipboard.writeText(txt).then(done,fallback)}catch(e){fallback()}
+    });
+    t.appendChild(b);
+  });
+
+  var links=[].slice.call(document.querySelectorAll("nav.toc a"));
+  var secs=links.map(function(a){return document.querySelector(a.getAttribute("href"))});
+  function spy(){
+    var y=window.scrollY+120, cur=0;
+    secs.forEach(function(s,i){ if(s && s.offsetTop<=y) cur=i; });
+    links.forEach(function(a,i){a.classList.toggle("on",i===cur)});
+  }
+  addEventListener("scroll",spy,{passive:true}); spy();
+})();
+</script>

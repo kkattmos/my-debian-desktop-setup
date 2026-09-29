@@ -1,0 +1,12 @@
+# ~/.config/systemd/user/photoprism.service  — NOT enabled; use `svc photoprism on|off`.
+[Unit]
+Description=PhotoPrism (native, SQLite)
+
+[Service]
+EnvironmentFile=%h/.config/photoprism/photoprism.env
+ExecStart=/usr/local/bin/photoprism start
+Restart=on-failure
+Nice=10
+
+[Install]
+WantedBy=default.target

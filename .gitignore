@@ -1,0 +1,5 @@
+# old pasted chat output, not part of the kit
+commands.txt
+# backups made by the scripts or by hand
+*.bak
+*.part

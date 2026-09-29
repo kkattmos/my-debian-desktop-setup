@@ -1,0 +1,7 @@
+{
+  "uuid": "gooey-dock@kkattmos",
+  "name": "Gooey Shell",
+  "description": "Recolors the dock, shell menus, quick settings and calendar with the Gooey palette so they match the Ptyxis terminal.",
+  "shell-version": ["45", "46", "47", "48", "49"],
+  "version": 1
+}

@@ -1,0 +1,18 @@
+# ~/.config/systemd/user/seadrive.service
+# SeaDrive CLI virtual drive at ~/SeaDrive (same paths as on Ubuntu: ~/SeaDrive/My Libraries/...).
+# Starts at boot (user lingering is enabled), retries until the network is up.
+[Unit]
+Description=SeaDrive CLI virtual drive
+After=default.target
+
+[Service]
+Type=simple
+ExecStartPre=/usr/bin/mkdir -p %h/SeaDrive %h/.seadrive/data %h/.seadrive/logs
+ExecStartPre=-/usr/bin/fusermount3 -uz %h/SeaDrive
+ExecStart=%h/.local/bin/seadrive -c %h/.config/seadrive/seadrive.conf -f -d %h/.seadrive/data -l %h/.seadrive/logs/seadrive.log %h/SeaDrive
+ExecStopPost=-/usr/bin/fusermount3 -uz %h/SeaDrive
+Restart=on-failure
+RestartSec=15
+
+[Install]
+WantedBy=default.target

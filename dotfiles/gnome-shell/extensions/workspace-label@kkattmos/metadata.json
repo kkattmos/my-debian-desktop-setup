@@ -1,0 +1,7 @@
+{
+  "uuid": "workspace-label@kkattmos",
+  "name": "Workspace Label",
+  "description": "Shows the current workspace name in the top-left of the panel. Click it to switch workspaces or rename the current one.",
+  "shell-version": ["45", "46", "47", "48", "49"],
+  "version": 1
+}

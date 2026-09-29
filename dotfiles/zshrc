@@ -1,0 +1,87 @@
+# ~/.zshrc — plain zsh + Powerlevel10k + a few Debian-packaged plugins.
+# Everything is in this one file; edit freely. Reload with: exec zsh
+# Prompt look: run `p10k configure` (interactive wizard, writes ~/.p10k.zsh).
+
+# Ly starts GNOME from a text console, so TERM=linux leaks into the whole desktop and the terminal
+# passes it on. In a graphical terminal that means 8 colours + no Unicode for p10k, nvim, less ...
+[[ $TERM == linux && $TTY == /dev/pts/* && -n $WAYLAND_DISPLAY$DISPLAY ]] && export TERM=xterm-256color
+
+# System info at the top of each new Ptyxis tab (not in nested shells, nvim :terminal, other terminals).
+# Must stay above the instant prompt. 0 = off; run `fastfetch` by hand any time. Look: ~/.config/fastfetch
+FASTFETCH_ON_START=1
+[[ $FASTFETCH_ON_START == 1 && -n $PTYXIS_VERSION && $SHLVL == 1 ]] && (( $+commands[fastfetch] )) && fastfetch
+
+# Powerlevel10k instant prompt - keep this near the top. Anything that asks for input
+# (password prompts, [y/n]) must go ABOVE this block.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+# ---------- PATH ----------
+typeset -U path
+path=(~/.local/bin ~/.local/opt/nvim/bin $path /usr/games /snap/bin)   # snap: Postman
+export EDITOR=nvim VISUAL=nvim
+
+# ---------- history ----------
+HISTFILE=~/.zsh_history HISTSIZE=50000 SAVEHIST=50000
+setopt share_history hist_ignore_all_dups hist_ignore_space hist_reduce_blanks extended_history
+
+# ---------- behaviour ----------
+setopt auto_cd auto_pushd pushd_ignore_dups interactive_comments no_beep
+bindkey -e                                  # emacs keys; use `bindkey -v` for vi mode
+autoload -Uz compinit && compinit -d ~/.cache/zcompdump
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'   # case-insensitive
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+
+# ---------- plugins (Debian packages) ----------
+source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+source <(fzf --zsh)                                        # Ctrl-R history, Ctrl-T files, Alt-C cd
+eval "$(zoxide init zsh)"                                  # `z proj` jumps to frecent dirs
+
+# ---------- prompt: Powerlevel10k (git clone by 30-user.sh, no oh-my-zsh) ----------
+# No ~/.p10k.zsh yet -> the configuration wizard starts by itself. Rerun it any time: p10k configure
+[[ -r ~/.local/share/powerlevel10k/powerlevel10k.zsh-theme ]] && source ~/.local/share/powerlevel10k/powerlevel10k.zsh-theme
+[[ -r ~/.p10k.zsh ]] && source ~/.p10k.zsh
+
+# ---------- aliases ----------
+# --icons=auto: file-type icons in a terminal, plain names when piped
+alias ls='eza --group-directories-first --icons=auto' ll='ls -l --git' la='ll -a' tree='ls --tree'
+alias cat='batcat --paging=never' fd='fdfind' v='nvim' lg='lazygit'
+alias update='sudo apt update && sudo apt full-upgrade && sudo apt autoremove --purge'
+alias snaps='sudo snapper -c root list'
+
+# ---------- git shortcuts (same names as oh-my-zsh's git plugin) ----------
+alias g='git' gst='git status' gss='git status --short'
+alias ga='git add' gaa='git add --all'
+alias gc='git commit --verbose' gca='git commit --verbose --all' gcmsg='git commit --message'
+alias gco='git checkout' gcb='git checkout -b' gsw='git switch' gswc='git switch --create'
+alias gb='git branch' gba='git branch --all'
+alias gd='git diff' gds='git diff --staged'
+alias gf='git fetch' gl='git pull' gp='git push' gpf='git push --force-with-lease'
+alias gpsup='git push --set-upstream origin "$(git branch --show-current)"'
+alias glog='git log --oneline --decorate --graph' grb='git rebase' grs='git restore' grh='git reset'
+alias gsta='git stash push' gstp='git stash pop' gcl='git clone --recurse-submodules'
+
+# ---------- on/off services: svc docker|photoprism|seadrive on|off|status ----------
+svc() {
+  local name=$1 action=${2:-status}
+  case "$name:$action" in
+    docker:on)        sudo systemctl start docker.socket docker.service ;;
+    docker:off)       sudo systemctl stop docker.service docker.socket containerd.service ;;
+    docker:status)    systemctl is-active docker.service containerd.service ;;
+    photoprism:on)    systemctl --user start photoprism && echo "http://localhost:2342" ;;
+    photoprism:off)   systemctl --user stop photoprism ;;
+    photoprism:status) systemctl --user is-active photoprism ;;
+    seadrive:on)      systemctl --user start seadrive ;;
+    seadrive:off)     systemctl --user stop seadrive ;;
+    seadrive:status)  systemctl --user status seadrive --no-pager ;;
+    *) echo "usage: svc docker|photoprism|seadrive on|off|status"; return 1 ;;
+  esac
+}
+
+# PhotoPrism CLI uses the same settings as the service (photoprism index / import / backup ...)
+[[ -f ~/.config/photoprism/photoprism.env ]] && { set -a; source ~/.config/photoprism/photoprism.env; set +a; }
+
+# must be last
+source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh

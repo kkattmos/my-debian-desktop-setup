@@ -1,0 +1,235 @@
+/* Gooey palette (the Ptyxis terminal's colors):
+   background #0D101B, bright black #1F222D, blue #6488C4, bright blue #97BBF7, foreground #EBEEF9 */
+
+/* --- Dock (overview dash) ---
+   The terminal is its blurred background at 30% plus the Gooey background at 70%. The
+   overview behind the dash is already blurred at 60% brightness by Blur my Shell, so half
+   of Gooey on top brings it to the same 30%. */
+#dash .dash-background {
+    background-color: rgba(13, 16, 27, 0.5) !important;
+}
+
+/* --- Quick settings menu --- */
+.quick-settings {
+    background-color: #0D101B !important;
+    border-color: #1F222D !important;
+    color: #EBEEF9 !important;
+}
+
+/* off toggles, the arrow halves, and the round buttons along the top */
+.quick-settings .quick-toggle,
+.quick-settings .quick-toggle-has-menu .quick-toggle-menu-button,
+.quick-settings .icon-button,
+.quick-settings .button {
+    background-color: #1F222D !important;
+    color: #EBEEF9 !important;
+}
+.quick-settings .quick-toggle:hover,
+.quick-settings .quick-toggle-has-menu .quick-toggle-menu-button:hover,
+.quick-settings .icon-button:hover,
+.quick-settings .button:hover {
+    background-color: #2A2E3C !important;
+}
+.quick-settings .quick-toggle:active,
+.quick-settings .quick-toggle-has-menu .quick-toggle-menu-button:active,
+.quick-settings .icon-button:active,
+.quick-settings .button:active {
+    background-color: #343949 !important;
+}
+
+/* on toggles use Gooey blue instead of the system accent */
+.quick-settings .quick-toggle:checked {
+    background-color: #6488C4 !important;
+    color: #FFFFFF !important;
+}
+.quick-settings .quick-toggle:checked:hover {
+    background-color: #7596CB !important;
+}
+.quick-settings .quick-toggle-has-menu .quick-toggle-menu-button:checked {
+    background-color: #7596CB !important;
+    color: #FFFFFF !important;
+}
+.quick-settings .quick-toggle-has-menu .quick-toggle-menu-button:checked:hover {
+    background-color: #86A3D2 !important;
+}
+
+/* volume / brightness sliders */
+.quick-settings .slider {
+    -barlevel-background-color: #1F222D;
+    -barlevel-active-background-color: #6488C4;
+}
+
+/* submenus that open under a toggle (Wi-Fi list, Bluetooth, ...) */
+.quick-settings .quick-toggle-menu {
+    background-color: #151928 !important;
+    color: #EBEEF9 !important;
+}
+
+/* --- Calendar / notifications menu (click the clock) --- */
+.datemenu-popover {
+    background-color: #0D101B !important;
+    border-color: #1F222D !important;
+    color: #EBEEF9 !important;
+}
+
+/* cards: notifications, events, world clocks, weather, and the month grid on hover */
+.datemenu-popover .message,
+.datemenu-popover .events-button,
+.datemenu-popover .world-clocks-button,
+.datemenu-popover .weather-button {
+    background-color: #1F222D !important;
+}
+.datemenu-popover .message:hover,
+.datemenu-popover .events-button:hover,
+.datemenu-popover .world-clocks-button:hover,
+.datemenu-popover .weather-button:hover,
+.datemenu-popover .calendar:hover,
+.datemenu-popover .datemenu-today-button:hover {
+    background-color: #2A2E3C !important;
+}
+.datemenu-popover .message:active,
+.datemenu-popover .events-button:active,
+.datemenu-popover .world-clocks-button:active,
+.datemenu-popover .weather-button:active,
+.datemenu-popover .calendar:active,
+.datemenu-popover .datemenu-today-button:active {
+    background-color: #343949 !important;
+}
+
+/* days, arrows and buttons inside the menu */
+.datemenu-popover .calendar .calendar-day:hover,
+.datemenu-popover .calendar .calendar-month-header .pager-button:hover,
+.datemenu-popover .button:hover {
+    background-color: #2A2E3C !important;
+}
+.datemenu-popover .calendar .calendar-day:selected,
+.datemenu-popover .calendar .calendar-day:active {
+    background-color: #343949 !important;
+}
+.datemenu-popover .message-list-controls .button {
+    background-color: #1F222D !important;
+}
+
+/* today uses Gooey blue instead of the system accent */
+.datemenu-popover .calendar .calendar-day.calendar-today {
+    background-color: #6488C4 !important;
+    color: #FFFFFF !important;
+}
+.datemenu-popover .calendar .calendar-day.calendar-today:hover {
+    background-color: #7596CB !important;
+}
+
+/* Do Not Disturb switch */
+.datemenu-popover .toggle-switch:checked {
+    background-color: #6488C4 !important;
+}
+
+/* --- All other shell menus: desktop and dock right-click menus, top bar menus --- */
+.popup-menu-content,
+.candidate-popup-content {
+    background-color: #0D101B !important;
+    border-color: #1F222D !important;
+    color: #EBEEF9 !important;
+}
+.popup-menu-item:hover,
+.popup-menu-item:selected,
+.popup-menu-item:focus,
+.popup-menu-item:checked {
+    background-color: #1F222D !important;
+    color: #EBEEF9 !important;
+}
+.popup-menu-item:active {
+    background-color: #2A2E3C !important;
+}
+.popup-sub-menu {
+    background-color: #151928 !important;
+}
+.popup-sub-menu .popup-menu-item:hover,
+.popup-sub-menu .popup-menu-item:selected,
+.popup-sub-menu .popup-menu-item:focus {
+    background-color: #2A2E3C !important;
+}
+.popup-separator-menu-item .popup-separator-menu-item-separator {
+    background-color: #1F222D !important;
+}
+.popup-menu-item .toggle-switch:checked {
+    background-color: #6488C4 !important;
+}
+
+/* --- Submenus inside quick settings (Power Off, Wi-Fi list, ...), in every state --- */
+.quick-toggle-menu,
+.quick-toggle-menu:insensitive {
+    background-color: #151928 !important;
+    color: #EBEEF9 !important;
+}
+
+/* --- Notification banners and the notification list --- */
+.message {
+    background-color: #1F222D !important;
+    color: #EBEEF9 !important;
+}
+.message:second-in-stack {
+    background-color: #181B25 !important;
+}
+.message:hover {
+    background-color: #2A2E3C !important;
+}
+
+/* --- Top bar buttons: highlight in Gooey tones instead of white --- */
+#panel .panel-button:focus,
+#panel .panel-button:hover {
+    box-shadow: inset 0 0 0 100px rgba(235, 238, 249, 0.10) !important;
+}
+#panel .panel-button:active,
+#panel .panel-button:checked {
+    box-shadow: inset 0 0 0 100px rgba(100, 136, 196, 0.35) !important;
+}
+#panel .panel-button:active:hover,
+#panel .panel-button:checked:hover {
+    box-shadow: inset 0 0 0 100px rgba(100, 136, 196, 0.45) !important;
+}
+
+/* --- System dialogs (power off, password prompts), volume/brightness pop-ups, Alt+Tab --- */
+.modal-dialog,
+.osd-window,
+.switcher-list {
+    background-color: #0D101B !important;
+    border-color: #1F222D !important;
+    color: #EBEEF9 !important;
+}
+.modal-dialog .modal-dialog-button-box .modal-dialog-button {
+    background-color: #1F222D !important;
+}
+.modal-dialog .modal-dialog-button-box .modal-dialog-button:hover,
+.modal-dialog .modal-dialog-button-box .modal-dialog-button:focus {
+    background-color: #2A2E3C !important;
+}
+.switcher-list .item-box:selected,
+.switcher-list .item-box:hover {
+    background-color: #1F222D !important;
+}
+
+/* --- Calendar grid: no gray pills on the navy menu, only hover/today/selected show --- */
+.datemenu-popover .calendar .calendar-day,
+.datemenu-popover .calendar .calendar-day-heading,
+.datemenu-popover .calendar .calendar-month-header .calendar-month-label,
+.datemenu-popover .calendar .calendar-month-header .pager-button {
+    background-color: transparent !important;
+}
+.datemenu-popover .calendar .calendar-month-header .calendar-month-label:hover {
+    background-color: #2A2E3C !important;
+}
+
+/* --- Top bar clock: its highlight sits on the inner .clock, not the button --- */
+#panel .panel-button.clock-display:focus .clock,
+#panel .panel-button.clock-display:hover .clock {
+    box-shadow: inset 0 0 0 100px rgba(235, 238, 249, 0.10) !important;
+}
+#panel .panel-button.clock-display:active .clock,
+#panel .panel-button.clock-display:checked .clock {
+    box-shadow: inset 0 0 0 100px rgba(100, 136, 196, 0.35) !important;
+}
+#panel .panel-button.clock-display:active .clock:hover,
+#panel .panel-button.clock-display:checked .clock:hover {
+    box-shadow: inset 0 0 0 100px rgba(100, 136, 196, 0.45) !important;
+}

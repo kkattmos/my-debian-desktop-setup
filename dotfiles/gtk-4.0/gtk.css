@@ -1,0 +1,42 @@
+/* Gooey: the Ptyxis terminal's palette for every libadwaita (GNOME) app.
+   Solid Gooey navy (#0D101B) everywhere. Only Files (window.view) keeps the terminal's
+   look of 70% navy with Blur my Shell's blur behind it; the other apps are not blurred
+   (to save battery), so they must be opaque or sharp windows behind would show through.
+   The terminal itself is excluded (.ptyxis-window): it already draws its own navy.
+   ":not(...)" also raises specificity, so this beats libadwaita whatever the load order. */
+window.background:not(.ptyxis-window) {
+    background-color: #0D101B;
+
+    --window-bg-color: transparent;
+    --view-bg-color: transparent;
+    --headerbar-bg-color: transparent;
+    --headerbar-backdrop-color: transparent;
+    --headerbar-shade-color: rgba(0, 0, 0, 0.25);
+    --sidebar-bg-color: rgba(31, 34, 45, 0.3);
+    --sidebar-backdrop-color: rgba(31, 34, 45, 0.3);
+    --sidebar-shade-color: rgba(0, 0, 0, 0.25);
+    --secondary-sidebar-bg-color: rgba(31, 34, 45, 0.2);
+    --secondary-sidebar-backdrop-color: rgba(31, 34, 45, 0.2);
+    --card-bg-color: rgba(31, 34, 45, 0.6);
+
+    --window-fg-color: #EBEEF9;
+    --view-fg-color: #EBEEF9;
+    --headerbar-fg-color: #EBEEF9;
+    --sidebar-fg-color: #EBEEF9;
+    --secondary-sidebar-fg-color: #EBEEF9;
+    --card-fg-color: #EBEEF9;
+
+    --popover-bg-color: #0D101B;
+    --popover-fg-color: #EBEEF9;
+    --dialog-bg-color: #0D101B;
+    --dialog-fg-color: #EBEEF9;
+
+    --accent-bg-color: #6488C4;
+    --accent-fg-color: #FFFFFF;
+    --accent-color: #97BBF7;
+}
+
+/* Files: see-through navy like the terminal (it is on Blur my Shell's list) */
+window.view.background:not(.ptyxis-window) {
+    background-color: rgba(13, 16, 27, 0.7);
+}

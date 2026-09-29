@@ -1,0 +1,7 @@
+/* Gooey: let the New Tab / Home page show the browser's blurred navy window behind it
+   (needs browser.tabs.allow_transparent_browser, set in user.js). Websites are untouched. */
+@-moz-document url("about:newtab"), url("about:home") {
+    :root, body {
+        background-color: transparent !important;
+    }
+}

@@ -1,0 +1,341 @@
+<meta charset="utf-8">
+<title>Neovim Cheat Sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@500;700;800&display=swap">
+<style>
+  /* Deliberately single-theme: this is a sheet of paper. */
+  :root {
+    --paper: #ffffff;
+    --ink: #17201c;
+    --muted: #5b6862;
+    --rule: #d3dbd6;
+    --cap: #f1f5f2;
+    --cap-edge: #aebbb3;
+    --green: #2f7a34;   /* Neovim green, darkened for print */
+    --blue: #1d64a0;
+    --normal: #1d64a0;
+    --insert: #2f7a34;
+    --visual: #8a3f9e;
+    --command: #a86a00;
+    --mono: "JetBrains Mono", "JetBrainsMono Nerd Font", "DejaVu Sans Mono", monospace;
+    --sans: "Atkinson Hyperlegible", "DejaVu Sans", "Helvetica", sans-serif;
+  }
+  @page { size: A4 landscape; margin: 9mm 10mm; }
+  * { box-sizing: border-box; }
+  html { background: var(--paper); }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font: 9.3pt/1.34 var(--sans);
+    padding-inline: 16px;
+    padding-block: 16px;
+    margin: 0 auto;
+    max-width: 297mm;
+  }
+  .sheet { break-after: page; }
+  .sheet:last-child { break-after: auto; }
+  @media screen {
+    .sheet { border: 1px solid var(--rule); padding: 9mm 10mm; margin-bottom: 24px; }
+  }
+  @media print { body { padding: 0; max-width: none; } }
+
+  header {
+    display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    border-bottom: 2px solid var(--ink); padding-bottom: 4px; margin-bottom: 7px;
+  }
+  h1 { font: 800 18pt/1 var(--mono); margin: 0; white-space: nowrap; letter-spacing: -0.02em; }
+  h1 .side { color: var(--green); }
+  .meta { font: 500 7.4pt/1.3 var(--mono); color: var(--muted); text-align: right; }
+  .meta b { color: var(--ink); }
+
+  .cols { column-count: 3; column-gap: 7mm; column-rule: 1px solid var(--rule); }
+  section { break-inside: avoid; margin: 0 0 6px; }
+  h2 {
+    font: 700 8.2pt/1 var(--mono); text-transform: uppercase; letter-spacing: 0.09em;
+    color: var(--blue); margin: 0 0 3px; padding-top: 2px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  h2::after { content: ""; flex: 1; border-top: 1px solid var(--rule); }
+  .sheet.lazy h2 { color: var(--green); }
+
+  table { width: 100%; border-collapse: collapse; }
+  td { padding: 1.6px 0; vertical-align: top; }
+  td:first-child { white-space: nowrap; padding-right: 6px; width: 1%; }
+  tr + tr td { border-top: 1px dotted #e3e8e5; }
+  kbd {
+    font: 600 8pt/1 var(--mono);
+    background: var(--cap); border: 1px solid var(--cap-edge); border-bottom-width: 1.6px;
+    border-radius: 2.5px; padding: 1px 3px; display: inline-block; color: var(--ink);
+  }
+  kbd.ld { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  code { font: 500 8.1pt var(--mono); color: var(--ink); }
+  .dim { color: var(--muted); }
+  h2 .path { text-transform: none; letter-spacing: 0; color: var(--muted); }
+  .note { font-size: 8pt; color: var(--muted); margin: 3px 0 0; }
+
+  /* Modes: colours match the LazyVim statusline */
+  .modes { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
+  .mode { border-left: 4px solid; padding: 2px 5px; background: #f7f9f8; }
+  .mode b { font: 800 7.4pt var(--mono); letter-spacing: 0.06em; display: block; }
+  .mode.n { border-color: var(--normal); } .mode.n b { color: var(--normal); }
+  .mode.i { border-color: var(--insert); } .mode.i b { color: var(--insert); }
+  .mode.v { border-color: var(--visual); } .mode.v b { color: var(--visual); }
+  .mode.c { border-color: var(--command); } .mode.c b { color: var(--command); }
+
+  .grammar {
+    font: 700 9pt var(--mono); text-align: center; padding: 3px 0; margin: 1px 0 3px;
+    border: 1px solid var(--rule); background: #f7f9f8;
+  }
+  .grammar span { color: var(--muted); font-weight: 500; font-size: 7pt; }
+  .tag {
+    font: 700 6.2pt var(--mono); text-transform: uppercase; letter-spacing: .05em;
+    color: var(--green); border: 1px solid var(--green); border-radius: 2px; padding: 0 2px; margin-left: 3px;
+  }
+  footer { margin-top: 4px; font: 500 6.8pt var(--mono); color: var(--muted); display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+
+  @media screen and (max-width: 900px) { .cols { column-count: 2; } }
+  @media screen and (max-width: 560px) {
+    .cols { column-count: 1; }
+    .sheet { padding: 12px; }
+    body { font-size: 10pt; }
+  }
+</style>
+
+<!-- ============ FRONT: Vim essentials ============ -->
+<div class="sheet">
+  <header>
+    <h1>Neovim <span class="side">/ the essentials</span></h1>
+    <div class="meta"><b>nvim 0.12.5</b> + LazyVim · <kbd class="ld">Spc</kbd> = Leader · <kbd>\</kbd> = LocalLeader<br>Stuck? Press <kbd>Esc</kbd>. New? Run <code>:Tutor</code></div>
+  </header>
+
+  <div class="cols">
+    <section>
+      <h2>Modes</h2>
+      <div class="modes">
+        <div class="mode n"><b>NORMAL</b><kbd>Esc</kbd> move &amp; run commands</div>
+        <div class="mode i"><b>INSERT</b><kbd>i</kbd> <kbd>a</kbd> <kbd>o</kbd> type text</div>
+        <div class="mode v"><b>VISUAL</b><kbd>v</kbd> <kbd>V</kbd> <kbd>Ctrl+v</kbd> select</div>
+        <div class="mode c"><b>COMMAND</b><kbd>:</kbd> run <code>:w</code>, <code>:q</code>…</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Save &amp; quit</h2>
+      <table>
+        <tr><td><kbd>Ctrl+s</kbd></td><td>Save <span class="tag">lazy</span></td></tr>
+        <tr><td><code>:w</code> <code>:wq</code></td><td>Save / save and quit</td></tr>
+        <tr><td><code>:q</code> <code>:q!</code></td><td>Quit / quit and discard changes</td></tr>
+        <tr><td><kbd class="ld">Spc</kbd> <kbd>q</kbd> <kbd>q</kbd></td><td>Quit everything <span class="tag">lazy</span></td></tr>
+        <tr><td><code>:e path</code></td><td>Open a file</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Move</h2>
+      <table>
+        <tr><td><kbd>h</kbd> <kbd>j</kbd> <kbd>k</kbd> <kbd>l</kbd></td><td>Left · down · up · right</td></tr>
+        <tr><td><kbd>w</kbd> <kbd>b</kbd> <kbd>e</kbd></td><td>Next word · back a word · word end</td></tr>
+        <tr><td><kbd>0</kbd> <kbd>^</kbd> <kbd>$</kbd></td><td>Line start · first char · line end</td></tr>
+        <tr><td><kbd>gg</kbd> <kbd>G</kbd> <code>:42</code></td><td>Top · bottom · go to line 42</td></tr>
+        <tr><td><kbd>{</kbd> <kbd>}</kbd></td><td>Previous / next blank line (paragraph)</td></tr>
+        <tr><td><kbd>%</kbd></td><td>Jump to the matching bracket</td></tr>
+        <tr><td><kbd>Ctrl+d</kbd> <kbd>Ctrl+u</kbd></td><td>Half a page down / up</td></tr>
+        <tr><td><kbd>f</kbd><i>x</i> <kbd>t</kbd><i>x</i></td><td>To / just before char <i>x</i> on the line; <kbd>;</kbd> repeats</td></tr>
+        <tr><td><kbd>s</kbd> + 2 chars</td><td>Jump anywhere on screen (flash) <span class="tag">lazy</span></td></tr>
+        <tr><td><kbd>Ctrl+o</kbd> <kbd>Ctrl+i</kbd></td><td>Jump back / forward in history</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Start typing</h2>
+      <table>
+        <tr><td><kbd>i</kbd> <kbd>a</kbd></td><td>Insert before / after the cursor</td></tr>
+        <tr><td><kbd>I</kbd> <kbd>A</kbd></td><td>Insert at line start / end</td></tr>
+        <tr><td><kbd>o</kbd> <kbd>O</kbd></td><td>Open a new line below / above</td></tr>
+        <tr><td><kbd>Esc</kbd></td><td>Back to Normal mode</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Edit</h2>
+      <table>
+        <tr><td><kbd>x</kbd></td><td>Delete the character under the cursor</td></tr>
+        <tr><td><kbd>dd</kbd> <kbd>yy</kbd> <kbd>cc</kbd></td><td>Cut · copy · replace the whole line</td></tr>
+        <tr><td><kbd>p</kbd> <kbd>P</kbd></td><td>Paste after / before</td></tr>
+        <tr><td><kbd>u</kbd> <kbd>Ctrl+r</kbd></td><td>Undo / redo</td></tr>
+        <tr><td><kbd>.</kbd></td><td>Repeat the last change</td></tr>
+        <tr><td><kbd>J</kbd></td><td>Join the line below onto this one</td></tr>
+        <tr><td><kbd>&gt;&gt;</kbd> <kbd>&lt;&lt;</kbd></td><td>Indent / outdent</td></tr>
+        <tr><td><kbd>gcc</kbd></td><td>Toggle comment on the line</td></tr>
+        <tr><td><kbd>~</kbd></td><td>Flip upper/lower case</td></tr>
+      </table>
+      <p class="note"><kbd>y</kbd> and <kbd>p</kbd> use the system clipboard (LazyVim default).</p>
+    </section>
+
+    <section>
+      <h2>The grammar</h2>
+      <div class="grammar">[count] verb target <span>→</span> <kbd>d</kbd><kbd>2</kbd><kbd>w</kbd></div>
+      <table>
+        <tr><td><kbd>d</kbd> <kbd>c</kbd> <kbd>y</kbd></td><td>Verbs: delete · change · yank (copy)</td></tr>
+        <tr><td><kbd>&gt;</kbd> <kbd>&lt;</kbd> <kbd>gc</kbd></td><td>Verbs: indent · outdent · comment</td></tr>
+        <tr><td><kbd>iw</kbd> <kbd>aw</kbd></td><td>Inside word / word + space</td></tr>
+        <tr><td><kbd>i"</kbd> <kbd>i(</kbd> <kbd>i{</kbd></td><td>Inside quotes / parens / braces</td></tr>
+        <tr><td><kbd>it</kbd> <kbd>ip</kbd></td><td>Inside HTML tag / paragraph</td></tr>
+        <tr><td><kbd>ciw</kbd></td><td>Replace this word</td></tr>
+        <tr><td><kbd>di(</kbd> <kbd>ci"</kbd></td><td>Empty parens · retype a string</td></tr>
+        <tr><td><kbd>yap</kbd> <kbd>&gt;ip</kbd></td><td>Copy paragraph · indent block</td></tr>
+        <tr><td><kbd>dt,</kbd></td><td>Delete up to the next comma</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Select (Visual)</h2>
+      <table>
+        <tr><td><kbd>v</kbd> <kbd>V</kbd></td><td>Select characters / whole lines</td></tr>
+        <tr><td><kbd>Ctrl+v</kbd></td><td>Block (column) select; <kbd>I</kbd> types on every line</td></tr>
+        <tr><td><kbd>d</kbd> <kbd>y</kbd> <kbd>c</kbd> <kbd>&gt;</kbd> <kbd>gc</kbd></td><td>Act on the selection</td></tr>
+        <tr><td><kbd>gv</kbd></td><td>Reselect the last selection</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Search &amp; replace</h2>
+      <table>
+        <tr><td><kbd>/</kbd>text <kbd>?</kbd>text</td><td>Search forward / backward</td></tr>
+        <tr><td><kbd>n</kbd> <kbd>N</kbd></td><td>Next / previous match</td></tr>
+        <tr><td><kbd>*</kbd></td><td>Search the word under the cursor</td></tr>
+        <tr><td><kbd>Esc</kbd></td><td>Clear highlight <span class="tag">lazy</span></td></tr>
+        <tr><td><code>:%s/old/new/g</code></td><td>Replace in the whole file</td></tr>
+        <tr><td><code>:%s/old/new/gc</code></td><td>…asking at each match</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Macros &amp; marks</h2>
+      <table>
+        <tr><td><kbd>q</kbd><kbd>a</kbd> … <kbd>q</kbd></td><td>Record a macro into register <i>a</i></td></tr>
+        <tr><td><kbd>@</kbd><kbd>a</kbd> <kbd>@@</kbd></td><td>Play it · replay the last one</td></tr>
+        <tr><td><kbd>10@a</kbd></td><td>Play it 10 times</td></tr>
+        <tr><td><kbd>m</kbd><kbd>a</kbd> <kbd>'</kbd><kbd>a</kbd></td><td>Set mark <i>a</i> · jump back to it</td></tr>
+      </table>
+    </section>
+  </div>
+  <footer><span>Front — core Vim keys (work in any Vim)</span><span><span class="tag">lazy</span> = added by LazyVim</span></footer>
+</div>
+
+<!-- ============ BACK: LazyVim on this PC ============ -->
+<div class="sheet lazy">
+  <header>
+    <h1>LazyVim <span class="side">/ on this PC</span></h1>
+    <div class="meta">Press <kbd class="ld">Spc</kbd> and wait: a menu lists every shortcut<br>Open a project: <code>cd project &amp;&amp; nvim .</code></div>
+  </header>
+
+  <div class="cols">
+    <section>
+      <h2>Files &amp; search</h2>
+      <table>
+        <tr><td><kbd class="ld">Spc</kbd> <kbd class="ld">Spc</kbd></td><td>Find a file in the project</td></tr>
+        <tr><td><kbd class="ld">Spc</kbd> <kbd>/</kbd></td><td>Search text in all project files</td></tr>
+        <tr><td><kbd class="ld">Spc</kbd> <kbd>e</kbd></td><td>File explorer (toggle)</td></tr>
+        <tr><td><kbd class="ld">Spc</kbd> <kbd>f</kbd> <kbd>r</kbd></td><td>Recent files</td></tr>
+        <tr><td><kbd class="ld">Spc</kbd> <kbd>,</kbd></td><td>Pick an open buffer</td></tr>
+        <tr><td><kbd>H</kbd> <kbd>L</kbd></td><td>Previous / next buffer (tab)</td></tr>
+        <tr><td><kbd class="ld">Spc</kbd> <kbd>b</kbd> <kbd>d</kbd></td><td>Close the current buffer</td></tr>
+        <tr><td><kbd class="ld">Spc</kbd> <kbd>s</kbd> <kbd>k</kbd></td><td>Search keymaps</td></tr>
+        <tr><td><kbd class="ld">Spc</kbd> <kbd>s</kbd> <kbd>h</kbd></td><td>Search help pages</td></tr>
+      </table>
+      <p class="note">In the explorer: <kbd>a</kbd> new file (end with <code>/</code> for a folder) · <kbd>r</kbd> rename · <kbd>d</kbd> delete · <kbd>?</kbd> help</p>
+    </section>
+
+    <section>
+      <h2>Code intelligence</h2>
+      <table>
+        <tr><td><kbd>gd</kbd> <kbd>gr</kbd></td><td>Go to definition / list references</td></tr>
+        <tr><td><kbd>gI</kbd> <kbd>gy</kbd></td><td>Go to implementation / type definition</td></tr>
+        <tr><td><kbd>K</kbd></td><td>Documentation popup</td></tr>
+        <tr><td><kbd class="ld">Spc</kbd> <kbd>c</kbd> <kbd>a</kbd></td><td>Code actions / quick fix</td></tr>
+        <tr><td><kbd class="ld">Spc</kbd> <kbd>c</kbd> <kbd>r</kbd></td><td>Rename symbol everywhere</td></tr>
+        <tr><td><kbd class="ld">Spc</kbd> <kbd>c</kbd> <kbd>f</kbd></td><td>Format (also runs on save)</td></tr>
+        <tr><td><kbd>]d</kbd> <kbd>[d</kbd></td><td>Next / previous diagnostic</td></tr>
+        <tr><td><kbd>]e</kbd> <kbd>[e</kbd></td><td>Next / previous error only</td></tr>
+        <tr><td><kbd class="ld">Spc</kbd> <kbd>c</kbd> <kbd>d</kbd></td><td>Show this line's diagnostics</td></tr>
+        <tr><td><kbd class="ld">Spc</kbd> <kbd>x</kbd> <kbd>x</kbd></td><td>Problems list (Trouble)</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Completion popup</h2>
+      <table>
+        <tr><td><kbd>Ctrl+n</kbd> <kbd>Ctrl+p</kbd></td><td>Next / previous suggestion</td></tr>
+        <tr><td><kbd>Enter</kbd></td><td>Accept</td></tr>
+        <tr><td><kbd>Ctrl+Space</kbd></td><td>Open the menu</td></tr>
+        <tr><td><kbd>Ctrl+e</kbd></td><td>Close the menu</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Windows, terminal, Git</h2>
+      <table>
+        <tr><td><kbd class="ld">Spc</kbd> <kbd>|</kbd> <kbd class="ld">Spc</kbd> <kbd>-</kbd></td><td>Split side by side / top and bottom</td></tr>
+        <tr><td><kbd>Ctrl+h/j/k/l</kbd></td><td>Move between windows</td></tr>
+        <tr><td><kbd>Ctrl+↑↓←→</kbd></td><td>Resize the window</td></tr>
+        <tr><td><kbd class="ld">Spc</kbd> <kbd>w</kbd> <kbd>d</kbd></td><td>Close the window</td></tr>
+        <tr><td><kbd>Ctrl+/</kbd></td><td>Toggle the built-in terminal</td></tr>
+        <tr><td><kbd class="ld">Spc</kbd> <kbd>g</kbd> <kbd>g</kbd></td><td>lazygit (stage, commit, push)</td></tr>
+        <tr><td><kbd>]h</kbd> <kbd>[h</kbd></td><td>Next / previous changed hunk</td></tr>
+        <tr><td><kbd class="ld">Spc</kbd> <kbd>g</kbd> <kbd>b</kbd></td><td>Blame this line</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Toggles</h2>
+      <table>
+        <tr><td><kbd class="ld">Spc</kbd> <kbd>u</kbd> <kbd>w</kbd></td><td>Line wrap</td></tr>
+        <tr><td><kbd class="ld">Spc</kbd> <kbd>u</kbd> <kbd>L</kbd></td><td>Relative line numbers</td></tr>
+        <tr><td><kbd class="ld">Spc</kbd> <kbd>u</kbd> <kbd>f</kbd></td><td>Format on save</td></tr>
+        <tr><td><kbd class="ld">Spc</kbd> <kbd>u</kbd> <kbd>C</kbd></td><td>Pick a colour scheme (preview)</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Jupyter notebooks <span class="dim">(your setup)</span></h2>
+      <table>
+        <tr><td colspan="2"><code>nvim file.ipynb</code> opens as Python; cells start with <code># %%</code></td></tr>
+        <tr><td><kbd>\</kbd><kbd>m</kbd><kbd>i</kbd></td><td>Start a kernel (do this first)</td></tr>
+        <tr><td><kbd>\</kbd><kbd>r</kbd><kbd>c</kbd></td><td>Run the current cell</td></tr>
+        <tr><td><kbd>\</kbd><kbd>r</kbd><kbd>l</kbd></td><td>Run the current line</td></tr>
+        <tr><td><kbd>\</kbd><kbd>r</kbd> <span class="dim">(Visual)</span></td><td>Run the selection</td></tr>
+        <tr><td><kbd>\</kbd><kbd>r</kbd><kbd>r</kbd></td><td>Re-run the cell</td></tr>
+        <tr><td><kbd>\</kbd><kbd>r</kbd><kbd>o</kbd> <kbd>h</kbd> <kbd>d</kbd></td><td>Output: open · hide · delete</td></tr>
+      </table>
+      <p class="note">With a kernel running, <code>:w</code> saves outputs into the .ipynb.</p>
+    </section>
+
+    <section>
+      <h2>Languages ready to go</h2>
+      <p style="margin:0">Python · TypeScript / JavaScript / React · Tailwind · HTML (emmet) · JSON · Markdown · Docker · Lua — with Prettier, ESLint and Ruff.</p>
+    </section>
+
+    <section>
+      <h2>Maintenance</h2>
+      <table>
+        <tr><td><kbd class="ld">Spc</kbd> <kbd>l</kbd></td><td><code>:Lazy</code> plugins — <kbd>S</kbd> updates all</td></tr>
+        <tr><td><kbd class="ld">Spc</kbd> <kbd>c</kbd> <kbd>m</kbd></td><td><code>:Mason</code> language servers &amp; tools</td></tr>
+        <tr><td><code>:LazyExtras</code></td><td>Add a language — <kbd>x</kbd> to enable</td></tr>
+        <tr><td><code>:checkhealth</code></td><td>Diagnose setup problems</td></tr>
+        <tr><td><code>:LazyHealth</code></td><td>…LazyVim specifically</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Your config <code class="path">~/.config/nvim/lua/</code></h2>
+      <table>
+        <tr><td><code>config/options.lua</code></td><td>Settings</td></tr>
+        <tr><td><code>config/keymaps.lua</code></td><td>Your own shortcuts</td></tr>
+        <tr><td><code>plugins/*.lua</code></td><td>Add or tweak plugins</td></tr>
+      </table>
+      <p class="note">Example mapping: <code>vim.keymap.set("n", "&lt;leader&gt;h", "&lt;cmd&gt;noh&lt;cr&gt;")</code></p>
+    </section>
+  </div>
+  <footer><span>Back — LazyVim + your plugins</span><span>Full list: lazyvim.org/keymaps</span></footer>
+</div>
