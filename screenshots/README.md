@@ -5,6 +5,7 @@ of the main [README](../README.md):
 
 | File | What to show |
 |---|---|
+| `title.png` | **Done** - the README's title image (Wi-Fi name, LAN IP, user/host names blurred) |
 | `desktop.png` | Tiled windows: blurred terminal + Files over the wallpaper, top bar with the workspace label |
 | `terminal.png` | Ptyxis with fastfetch and the Powerlevel10k prompt (cava in a split looks great) |
 | `neovim.png` | Neovim (LazyVim) with the transparent Gooey colours, ideally a notebook with output |

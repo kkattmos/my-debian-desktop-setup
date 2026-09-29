@@ -1,5 +1,7 @@
 # my-debian-desktop-setup
 
+![Debian 13 + GNOME 48 with the Gooey look: blurred Firefox, Files and Ptyxis (fastfetch, btop) over the wallpaper, Gooey quick settings, the five shell extensions](screenshots/title.png)
+
 A fresh **Debian 13 "trixie"** netinst turned into a lean, encrypted, tiling **GNOME 48** desktop
 with a frosted-glass look called **Gooey**. Every setting you see is applied by a script in this repo,
 so the whole laptop can be rebuilt from the official Debian ISO in an evening.
