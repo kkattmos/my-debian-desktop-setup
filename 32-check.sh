@@ -49,6 +49,10 @@ row "GTK4 gtk.css" "$([[ -f ~/.config/gtk-4.0/gtk.css ]] && echo yes || echo no)
 row "nvim colorscheme" "$([[ -f ~/.config/nvim/lua/plugins/colorscheme.lua ]] && echo gooey || echo 'default tokyonight')"
 row "Firefox userChrome" "$(ls ~/.mozilla/firefox/*.default-esr/chrome/userChrome.css 2>/dev/null | wc -l) profile(s)"
 
+echo "--- boot"
+row "GRUB theme" "$(sed -n 's/^GRUB_THEME=//p' /etc/default/grub | tr -d '"')  files: $([[ -f /boot/grub/themes/space-isolation/theme.txt ]] && echo ok || echo 'missing (sudo bash 38-grub-theme.sh)')"
+row "GRUB os-prober" "$(grep -q '^GRUB_DISABLE_OS_PROBER=false' /etc/default/grub && echo on || echo 'off -> no Ubuntu entry in the GRUB menu')"
+
 echo "--- services"
 row "seadrive.service" "$(systemctl --user is-active seadrive 2>&1)"
 row "~/SeaDrive mounted" "$(findmnt -n -o FSTYPE ~/SeaDrive 2>/dev/null || echo no)"

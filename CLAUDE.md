@@ -88,6 +88,8 @@ fstab uses `UUID=<btrfs fs uuid>`. Snapper snapshots only `/` (apt pre/post, kee
     `desktopeditors/uithemes/Gooey.json`). Last key injects a CSS rule forcing Cantarell (workaround).
   - Papirus-Dark icons, Cantarell 12, 24h clock, battery %, wallpaper `wallhaven-72mrmv.jpg` (sha256-pinned,
     downloaded at install time - never commit the image).
+  - GRUB: **Space Isolation** theme (2026-10-01, 38-grub-theme.sh), 1920x1080 build with `GRUB_GFXMODE=1920x1080,auto`
+    (the screen is 2240x1400; no matching build exists).
   - NOT themed, on purpose: Claude desktop and Discord (Electron; would need app.asar patching / a ToS-breaking
     client mod - user declined), GTK3 apps (Disks). STM32CubeIDE colours are per-workspace prefs, done by hand in
     `~/Documents/2026a-repo/embedded-sys-lab-workspace` (keys include `org.eclipse.ui.r30.`); panels stay #2F2F2F.
@@ -106,6 +108,7 @@ fstab uses `UUID=<btrfs fs uuid>`. Snapper snapshots only `/` (apt pre/post, kee
 | `35-thai-font.sh` | **user, no sudo** | Sarabun TTFs (Google Fonts) + `~/.config/fontconfig/conf.d/60-thai-sarabun.conf`; called by 30 |
 | `36-terminal-look.sh` | **user** (sudo only for missing pkgs) | ptyxis/fastfetch/cava, Ptyxis profile via `dconf write` + read-back, `~/.config/xdg-terminals.list`, installs fastfetch/cava configs + zshrc (.bak if different); called by 30 |
 | `37-desktop-look.sh` | **user** (sudo only if no Papirus icons) | `dconf load` Blur my Shell + Tiling Shell layouts (verified key by key), interface keys, wallpaper, gtk.css, nvim colorscheme, Firefox profile files, ONLYOFFICE theme; called by 30. Needs a Firefox ESR profile (start Firefox once) |
+| `38-grub-theme.sh` | `sudo`, optional | Space Isolation GRUB theme v0.2.0 (1920x1080 release tarball, sha256-pinned) → `/boot/grub/themes/space-isolation`; sets GRUB_THEME/BACKGROUND/TERMINAL_OUTPUT/GFXMODE (by sourced value, so quoting differences don't count), update-grub, checks grub.cfg |
 | `40-stm32cubeide.sh`, `41-packettracer.sh` | user | need the user's own downloads (st.com / NetAcad logins) |
 | `90-absorb-ubuntu.sh` | `sudo`, later | moves Debian onto p2 (btrfs device add/remove), deletes p3, grows p2; resumable |
 
@@ -124,6 +127,9 @@ never `overridden-settings`).
   Tiling Shell; the user's own enabled-extensions value holds all of them, so nothing is broken.
 - **Ubuntu's p6 swap is still active** (32-check `!!`): the user must run `sudo bash 34-no-ubuntu-swap.sh` + reboot.
 - Also installed by hand, not scripted: claude-desktop (apt repo), discord, zoom, postman (snap), pysolfc.
+- GRUB theme installed by hand 2026-10-01 (same files/values as 38; running 38 changes nothing).
+- **`GRUB_DISABLE_OS_PROBER=false` is missing** from the laptop's `/etc/default/grub` (10-system.sh adds it;
+  how it got lost is unknown, no backup), so Ubuntu has no GRUB entry. 32-check shows `GRUB os-prober off`.
 - Not yet done: 20-wifi.sh (unknown), 40/41 course tools via the scripts, 90 (Ubuntu still kept).
   guide.html has NOT been updated for 37 / Gooey yet (still says Tokyo Night, 88%).
 
@@ -176,6 +182,11 @@ never `overridden-settings`).
     the user's screenshots, not by assuming ("Do not guess" - the user's words).
   - ONLYOFFICE's start page reads a different set of theme variables than the editors.
   - Electron apps (Claude desktop, Discord) ignore GTK CSS and create opaque windows.
+- GRUB theme: `GRUB_THEME` must point at a `theme.txt` that exists - Debian's `00_header` silently drops the theme
+  otherwise (no error; look for `Found theme:` in the update-grub output). The space-isolation repo keeps `theme.txt`
+  in per-resolution subfolders, so cloning the repo into `/boot/grub/themes` doesn't work. After a menu entry is
+  picked, the theme is gone and `05_debian_theme`'s background shows (desktop-base's blue one unless
+  `GRUB_BACKGROUND` is set). `/boot/grub/grub.cfg` is root-only (0600): Claude can't read it, ask the user.
 - `run 37 on the laptop` = safe verification: every value equals the live state, put() only writes `.bak` when a file differs.
 
 ## Working conventions

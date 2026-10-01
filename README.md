@@ -136,7 +136,9 @@ nvme0n1   p1  1 GB    EFI (shared with Ubuntu)
   separate subvolumes, so they never bloat snapshots. A rollback recipe is in [`guide.html`](guide.html).
 - **zram swap** (half of RAM, max 8 GB, zstd) instead of a swap partition. Ubuntu's unencrypted swap is kept out
   of Debian twice: it's commented out of fstab and `systemd-gpt-auto-generator` is masked.
-- **GRUB** lists Ubuntu (os-prober). **[`90-absorb-ubuntu.sh`](90-absorb-ubuntu.sh)** later removes Ubuntu and grows
+- **GRUB** lists Ubuntu (os-prober) and wears the [Space Isolation](https://github.com/callmenoodles/space-isolation)
+  theme (optional, [`38-grub-theme.sh`](38-grub-theme.sh)), whose background also stays up behind the
+  "Loading Linux …" lines. **[`90-absorb-ubuntu.sh`](90-absorb-ubuntu.sh)** later removes Ubuntu and grows
   Debian into one ~650 GB encrypted partition *while Debian keeps running*. It's resumable after a crash,
   and it verifies the initramfs before any reboot.
 - **APT:** deb822 sources, `contrib` + `non-free-firmware`, never installs recommended packages.
@@ -225,6 +227,7 @@ cp -r /mnt/home/<ubuntu-user>/debian13-stash ~ && sudo umount /mnt
 sudo bash ~/debian13-stash/kit/10-system.sh $USER    # run 1: compression + Btrfs subvolumes
 systemctl reboot
 sudo bash ~/debian13-stash/kit/10-system.sh $USER    # run 2: everything else, 10-20 min
+sudo bash ~/debian13-setup/38-grub-theme.sh          # optional: Space Isolation GRUB theme
 systemctl reboot
 ```
 
@@ -292,12 +295,13 @@ execute bit. Every script is idempotent: it checks state first, keeps `.bak` cop
 | [`20-wifi.sh`](20-wifi.sh) | user | University PEAP/MSCHAPv2 Wi-Fi + home WPA2 networks (system-owned secrets, up before login) |
 | [`30-user.sh`](30-user.sh) | user | zsh, fonts, Neovim/LazyVim, notebooks, calls 31/35/36/37, Tailscale, SeaDrive, PhotoPrism |
 | [`31-gnome-settings.sh`](31-gnome-settings.sh) | user | Installs the 5 shell extensions; GNOME settings as dconf system defaults, read back and verified |
-| [`32-check.sh`](32-check.sh) | user | Read-only status report (session, shell, extensions, look, services, swap) |
+| [`32-check.sh`](32-check.sh) | user | Read-only status report (session, shell, extensions, look, GRUB, services, swap) |
 | [`33-clean-root-leftovers.sh`](33-clean-root-leftovers.sh) | `sudo` | One-off: undoes an accidental `sudo bash 30-user.sh` |
 | [`34-no-ubuntu-swap.sh`](34-no-ubuntu-swap.sh) | `sudo` | One-off: masks `systemd-gpt-auto-generator` so Ubuntu's swap stays off (10 now does this) |
 | [`35-thai-font.sh`](35-thai-font.sh) | user | Sarabun + fontconfig rule, verified with `fc-match -s` |
 | [`36-terminal-look.sh`](36-terminal-look.sh) | user | Ptyxis profile (Gooey, 70%), fastfetch, cava, zshrc |
 | [`37-desktop-look.sh`](37-desktop-look.sh) | user | Blur my Shell + Tiling Shell settings, icons, wallpaper, GTK4 CSS, Firefox, ONLYOFFICE, Neovim colours |
+| [`38-grub-theme.sh`](38-grub-theme.sh) | `sudo`, optional | Space Isolation GRUB theme (sha256-pinned release), also as the "Loading …" background; checks `grub.cfg` |
 | [`40-stm32cubeide.sh`](40-stm32cubeide.sh) | user | STM32CubeIDE from ST's installer, Xwayland wrapper, udev rules |
 | [`41-packettracer.sh`](41-packettracer.sh) | user | Packet Tracer 9 from the Ubuntu `.deb` |
 | [`90-absorb-ubuntu.sh`](90-absorb-ubuntu.sh) | `sudo`, later | Moves Debian onto Ubuntu's partition and grows it: one encrypted partition, resumable |

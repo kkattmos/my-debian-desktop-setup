@@ -307,6 +307,7 @@ cp -r /mnt/home/<span class="h">&lt;ubuntu-user&gt;</span>/debian13-stash ~ &amp
 sudo bash ~/debian13-stash/kit/10-system.sh $USER    <span class="c"># run 1: Btrfs layout, ~2 min</span>
 systemctl reboot
 sudo bash ~/debian13-stash/kit/10-system.sh $USER    <span class="c"># run 2: everything else, 10–20 min</span>
+sudo bash ~/debian13-setup/38-grub-theme.sh          <span class="c"># optional: Space Isolation GRUB theme</span>
 systemctl reboot</pre></div>
     <p><strong>Run 1</strong> turns on zstd compression and compresses what the installer wrote. It creates the <code>@home</code>, <code>@snapshots</code>, <code>@var_log</code>, <code>@var_cache</code> and <code>@docker</code> subvolumes, copies the current data into them and adds them to <code>/etc/fstab</code>. It checks the new fstab and stops before the reboot if anything looks wrong; the installer’s original is kept as <code>/etc/fstab.installer-bak</code>.</p>
     <p><strong>Run 2</strong> checks that the subvolumes are mounted and deletes the old copies hidden underneath them. Then it sets up APT (no recommended packages, non-free-firmware); adds the Docker, ONLYOFFICE and Tailscale repos; installs the packages in one go (all 93 names checked against Debian 13); sets up zram, Snapper, GRUB with os-prober, <code>libncurses5</code> from Debian 12, and PhotoPrism; builds Ly; and moves the installer’s Wi-Fi to NetworkManager.</p>
@@ -397,6 +398,7 @@ reboot</pre></div>
     <li><code>34-no-ubuntu-swap.sh</code> stops Debian from switching on Ubuntu’s unencrypted swap partition (run with sudo; Ubuntu’s own use of it is unchanged)</li>
     <li><code>35-thai-font.sh</code> installs Sarabun (Google Fonts) and makes it the Thai fallback for sans-serif and serif, so Thai in Firefox, Discord and GNOME no longer falls back to Loma. Latin text and monospace are unchanged (no sudo; called by 30)</li>
     <li><code>36-terminal-look.sh</code> installs Ptyxis, fastfetch and cava, and sets the Ptyxis profile (Tokyo Night, 88% opacity, Nerd Font) plus the fastfetch and cava configs. Ptyxis becomes the terminal apps open. Safe to rerun (no sudo unless packages are missing; called by 30)</li>
+    <li><code>38-grub-theme.sh</code> installs the <a href="https://github.com/callmenoodles/space-isolation">Space Isolation</a> GRUB theme (1920×1080 release, sha256-checked) and uses its picture as the background behind “Loading Linux …” too, instead of Debian’s blue one. It checks <code>grub.cfg</code> before you reboot (optional, run with sudo, safe to rerun)</li>
     <li><code>40-stm32cubeide.sh</code> installs CubeIDE 1.9.1 with the Wayland wrapper and udev rules</li>
     <li><code>41-packettracer.sh</code> installs Packet Tracer 9 from the Ubuntu .deb</li>
     <li><code>90-absorb-ubuntu.sh</code> later merges Ubuntu’s p2 and Debian into one encrypted partition while Debian runs</li>
