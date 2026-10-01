@@ -137,7 +137,9 @@ never `overridden-settings`).
 - HP Mini 311-1000: Atom N280 (**32-bit only**, no AES-NI), legacy BIOS, 2.7 GiB RAM, 320 GB HDD `sda`,
   NVIDIA ION (nouveau), Ethernet `forcedeth`, Broadcom BCM4312 `14e4:4315` (b43 → `firmware-b43-installer`,
   contrib, downloads at install), Ralink RT3070 USB dongle (`rt2870.bin` in firmware-misc-nonfree).
-  CMOS clock was months behind. Hardware facts come from `hw-report.sh` output - ask for a new one rather than assume.
+  **CMOS battery is dead** (clock resets on every cold boot): m10 enables timesyncd + `clock-from-http.service`
+  (HTTP Date header fallback) + `broken_system_clock = 1` in /etc/e2fsck.conf (ext4 /boot is fsck'd before any sync).
+  m32-check saves `~/m32-check-*.txt` and copies it to the stick. Hardware facts come from `hw-report.sh` output - ask for a new one rather than assume.
 - Agreed (2026-10-01): **Debian 12 bookworm i386** (Debian 13 has no i386 kernel/installer; bookworm LTS to
   2028-06-30), wipe whole disk, LUKS + Btrfs + Snapper kept, **Xfce 4.18** (X11), Ly kept (Zig `x86-linux`,
   X11 support on), xfwm4 built-in tiling, picom 9.1 `--experimental-backends` dual_kawase blur (terminal,

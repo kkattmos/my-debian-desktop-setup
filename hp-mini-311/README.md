@@ -39,8 +39,13 @@ September 2026". Debian 12 i386 has `140.12.0esr`; whether more updates come is 
 Commands below are typed on the Mini.
 
 ### 0. Before you start
-- Set the **date and time in the BIOS setup**. The Mini's clock was months behind, and `apt` refuses
-  repositories "not valid yet" when the clock is behind.
+- **The CMOS battery is dead**, so every cold boot starts at a wrong date. You don't need to fix it in the
+  BIOS: the installer takes the time from the network, and `m10-system.sh` (already in run 1) makes the
+  installed system sync at **every boot**: `systemd-timesyncd` (NTP), plus `clock-from-http.service`
+  (time from deb.debian.org's HTTP `Date` header when NTP gets no answer). It also sets
+  `broken_system_clock = 1` in `/etc/e2fsck.conf`, so the boot-time check of `/boot` doesn't fail on the
+  wrong date. Until the network is up after a boot, the clock shows the time of the last shutdown.
+  Replacing the CMOS battery is the real fix.
 - Have the **Ralink USB Wi-Fi dongle** plugged in, or an **Ethernet cable**.
 - Download `debian-12.15.0-i386-netinst.iso` (+ `SHA512SUMS`) from
   `https://cdimage.debian.org/cdimage/archive/latest-oldstable/i386/iso-cd/`, check it, and copy it
@@ -94,8 +99,10 @@ URL + login and which libraries to sync. Then it compiles Neovim and the tree-si
 ```
 bash ~/debian13-setup/hp-mini-311/m32-check.sh
 ```
-Send its output and screenshots of the desktop, the terminal and Thunar: colours are checked against
-the Dell by sampling screenshots, not guessed.
+It prints the report and saves it as `~/m32-check-<host>-<date>.txt`; when the Ventoy stick is mounted
+it also copies the file to the stick's `debian-install/` folder. Bring that file back, together with
+screenshots of the desktop, the terminal and Thunar: colours are checked against the Dell by sampling
+screenshots, not guessed.
 
 ## Things to try once it runs
 - **Blur speed:** move the terminal around. If it stutters, `svc blur off` (see-through, no blur).
@@ -106,11 +113,11 @@ the Dell by sampling screenshots, not guessed.
 ## Files
 | File | Run as | What |
 |---|---|---|
-| `m10-system.sh <user>` | `sudo`, twice | Btrfs subvolumes; APT; Tailscale repo; packages; b43 firmware; zram; Snapper; Ly (Zig x86); ifupdown → NetworkManager |
+| `m10-system.sh <user>` | `sudo`, twice | clock sync at every boot (dead CMOS battery); Btrfs subvolumes; APT; Tailscale repo; packages; b43 firmware; zram; Snapper; Ly (Zig x86); ifupdown → NetworkManager |
 | `m30-user.sh` | user, in Xfce | zsh + p10k, Nerd Font, Sarabun (`../35-thai-font.sh`), fastfetch + lazygit, calls `m37`, Tailscale, Seafile, calls `m31` |
 | `m31-neovim.sh` | user | builds Neovim + tree-sitter CLI, Python notebook env, LazyVim (`SKIP_TREESITTER=1` to skip Rust) |
 | `m37-xfce-look.sh` | user, in Xfce | Gooey GTK3 + xfwm4 theme, Papirus, fonts, shortcuts, Thai layout, panels, wallpaper, terminal, picom, xscreensaver, Firefox, Neovim colours |
-| `m32-check.sh` | user | read-only status report |
+| `m32-check.sh` | user | read-only status report, saved to `~/m32-check-*.txt` (+ copy on the stick) |
 | `gooey-gtk3-theme.py` | (called by m37) | recolours GTK's Adwaita-dark into Gooey |
 | `dotfiles/` | | Mini-only files: zshrc, picom, cava (PulseAudio input), seafile.service, `nvim/…/i386.lua` |
 | `../hw-report.sh` | any live system | hardware report used to plan this |

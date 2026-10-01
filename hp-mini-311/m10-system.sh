@@ -18,6 +18,59 @@ TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
 
 step() { printf '\n\033[1;34m== %s\033[0m\n' "$*"; }
 
+# ---------- Clock (both runs): the CMOS battery is dead, every cold boot starts at a wrong date ----------
+# - systemd-timesyncd syncs over NTP at every boot as soon as a network is up, and at start-up moves
+#   the clock forward to the last known time (/var/lib/systemd/timesync/clock, saved every minute).
+# - clock-from-http.service: if NTP gets no answer (blocked network), takes the time from the Date
+#   header of http://deb.debian.org (plain HTTP: HTTPS can't be checked while the date is wrong).
+# - e2fsck: the ext4 /boot is checked at boot BEFORE any of that, and its "last mounted" time then
+#   looks like the future; broken_system_clock makes e2fsck skip time checks instead of failing.
+step "Clock: sync from the internet at every boot (dead CMOS battery)"
+dpkg-query -W -f='${Status}' systemd-timesyncd 2>/dev/null | grep -q 'ok installed' || apt-get -y install systemd-timesyncd
+timedatectl set-ntp true
+cat > /usr/local/sbin/clock-from-http <<'EOF'
+#!/bin/sh
+# Set the clock from an HTTP Date header unless NTP already synced (debian13-setup/hp-mini-311).
+# Waits up to $1 seconds (default 60) for systemd-timesyncd first.
+i=0
+while [ "$i" -lt "${1:-60}" ]; do
+  [ "$(timedatectl show -p NTPSynchronized --value)" = yes ] && { echo "NTP synced: $(date)"; exit 0; }
+  sleep 1; i=$((i + 1))
+done
+# curl may not be installed yet on a fresh system; wget (standard priority) prints headers with -S
+d=$( { curl -fsSI --max-time 15 http://deb.debian.org/debian/ || wget -q -S --spider -T 15 http://deb.debian.org/debian/ 2>&1; } \
+     | sed -n 's/^ *[Dd]ate: //p' | sed -n 1p | tr -d '\r')
+[ -n "$d" ] || { echo "no NTP and no HTTP Date header - clock stays at $(date)"; exit 1; }
+date -s "$d" >/dev/null && echo "clock set from http://deb.debian.org: $(date)"
+EOF
+chmod 755 /usr/local/sbin/clock-from-http
+cat > /etc/systemd/system/clock-from-http.service <<'EOF'
+[Unit]
+Description=Set the clock from HTTP if NTP gets no answer (dead CMOS battery)
+Wants=network-online.target
+After=network-online.target systemd-timesyncd.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/clock-from-http 60
+
+[Install]
+WantedBy=multi-user.target
+EOF
+systemctl daemon-reload
+systemctl enable clock-from-http.service
+if ! grep -qs '^\s*broken_system_clock\s*=\s*\(1\|true\)' /etc/e2fsck.conf; then
+  [[ -f /etc/e2fsck.conf && ! -f /etc/e2fsck.conf.bak ]] && cp /etc/e2fsck.conf /etc/e2fsck.conf.bak
+  if grep -qs '^\[options\]' /etc/e2fsck.conf; then
+    sed -i '/^\[options\]/a\	broken_system_clock = 1' /etc/e2fsck.conf
+  else
+    printf '[options]\n\tbroken_system_clock = 1\n' >> /etc/e2fsck.conf
+  fi
+fi
+grep -A3 '^\[options\]' /etc/e2fsck.conf
+/usr/local/sbin/clock-from-http 30 || echo "  !! the date is still wrong - connect a network (Ethernet / USB dongle) and rerun"
+hwclock --systohc 2>/dev/null || true   # kept while powered; lost when the battery is removed
+
 # ---------- Btrfs layout (the installer puts everything in one uncompressed @rootfs) ----------
 # Run 1: turn on zstd compression, create @home @snapshots @var_log @var_cache,
 #        copy the current data into them, add them to fstab, then ask for a reboot.
@@ -77,16 +130,6 @@ step "Btrfs layout, run 2 of 2: remove the old copies hidden under the new mount
 mkdir -p "$TOP"; mountpoint -q "$TOP" || mount -o subvolid=5 UUID="$FSUUID" "$TOP"
 for d in home var/log var/cache; do find "$TOP/@rootfs/$d" -mindepth 1 -delete 2>/dev/null || true; done
 umount "$TOP"
-
-step "Clock: the Mini's CMOS clock was months off - sync it from the network (apt needs a correct date)"
-apt-get -y install systemd-timesyncd || true   # may fail if the date is so wrong that apt refuses; set it in the BIOS then
-timedatectl set-ntp true || true
-for _ in $(seq 30); do [[ $(timedatectl show -p NTPSynchronized --value 2>/dev/null) == yes ]] && break; sleep 1; done
-if [[ $(timedatectl show -p NTPSynchronized --value 2>/dev/null) == yes ]]; then
-  hwclock --systohc && echo "  clock synced and written to the BIOS: $(date)"
-else
-  echo "  !! not synced yet, the date is now: $(date) - if that is wrong, fix it in the BIOS (F10) and rerun"
-fi
 
 step "APT: no recommends, deb822 sources with contrib + non-free-firmware"
 cat > /etc/apt/apt.conf.d/99-minimal <<'EOF'
@@ -201,7 +244,7 @@ systemctl set-default graphical.target
 
 step "Network: hand Ethernet + Wi-Fi from ifupdown (installer) to NetworkManager"
 if grep -qE '^\s*iface\s+[^l ]' /etc/network/interfaces 2>/dev/null; then
-  cp -n /etc/network/interfaces /etc/network/interfaces.installer-bak
+  [[ -f /etc/network/interfaces.installer-bak ]] || cp /etc/network/interfaces /etc/network/interfaces.installer-bak
   # the installer's Wi-Fi (USB dongle, wlx...) becomes a NetworkManager profile
   if grep -qE '^\s*iface\s+wl' /etc/network/interfaces; then
     SSID=$(awk '/wpa-ssid/{sub(/^[ \t]*wpa-ssid[ \t]+/,""); print; exit}' /etc/network/interfaces)

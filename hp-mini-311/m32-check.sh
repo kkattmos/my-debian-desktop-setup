@@ -1,15 +1,24 @@
 #!/usr/bin/env bash
 # HP Mini 311: read-only status report - changes nothing. Run it in a terminal inside Xfce:
-#   bash m32-check.sh            (paste the output when asking for help)
+#   bash m32-check.sh
+# Prints the report and saves it as ~/m32-check-<date>.txt; when the Ventoy stick is mounted, a copy
+# goes to its debian-install/ folder too (bring that file back to the Dell).
 row() { printf '%-22s %s\n' "$1" "$2"; }
 uid=$(id -u)
 (( uid != 0 )) || { echo "Run as your normal user, not with sudo."; exit 1; }
 xq() { xfconf-query -c "$1" -p "$2" 2>/dev/null | tr '\n' ' ' | sed 's/ *$//'; }
+OUT=~/m32-check-$(hostname)-$(date +%Y%m%d-%H%M).txt
+
+{
+echo "m32-check  $(date -Is)  $(hostname)"
 
 echo "--- system"
 row "debian / arch" "$(sed -n 's/^PRETTY_NAME=//p' /etc/os-release | tr -d '"') / $(dpkg --print-architecture)"
 row "kernel" "$(uname -r)"
 row "clock" "$(date '+%F %T')  NTP synced: $(timedatectl show -p NTPSynchronized --value 2>/dev/null)"
+row "clock-from-http" "$(systemctl is-enabled clock-from-http 2>&1), last boot: $(systemctl show clock-from-http -p Result --value 2>/dev/null)"
+e2=$(grep -h broken_system_clock /etc/e2fsck.conf 2>/dev/null | xargs)
+row "e2fsck.conf" "${e2:-missing (m10-system.sh)}"
 row "swap" "$(awk 'NR>1{print $1}' /proc/swaps | paste -sd' ')  (want only /dev/zram0)"
 for m in / /home /.snapshots /var/log /var/cache; do row "btrfs $m" "$(findmnt -no FSROOT,OPTIONS "$m" 2>/dev/null | cut -c1-70)"; done
 
@@ -58,3 +67,10 @@ echo "--- services"
 row "tailscale" "$(tailscale status --peers=false 2>&1 | sed -n 1p)"
 row "seafile.service" "$(systemctl --user is-active seafile 2>&1)"
 seaf-cli status 2>/dev/null | sed -n '2,$p' | while read -r line; do row "  seafile" "$line"; done
+} 2>&1 | tee "$OUT"
+
+echo
+echo "Saved: $OUT"
+for d in /media/"$USER"/Ventoy/debian-install /run/media/"$USER"/Ventoy/debian-install; do
+  if [[ -d $d && -w $d ]]; then cp "$OUT" "$d/" && sync && echo "Copied to the stick: $d/$(basename "$OUT")"; fi
+done
