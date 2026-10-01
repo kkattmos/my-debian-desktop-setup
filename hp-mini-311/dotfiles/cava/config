@@ -1,0 +1,28 @@
+## cava audio visualizer, Gooey colours - installed by m37-xfce-look.sh (HP Mini 311)
+## Debian 12's cava 0.7.4 has no PipeWire input; PipeWire's PulseAudio server (pipewire-pulse) feeds it.
+## Run it in a terminal: cava   (q quits, arrows change sensitivity/bars)
+
+[general]
+framerate = 30
+bar_width = 2
+bar_spacing = 1
+sleep_timer = 5
+
+[input]
+method = pulse
+source = auto
+
+[output]
+method = noncurses
+
+[color]
+# bottom -> top: Gooey blue, bright blue, lavender, pink (the terminal's ANSI colours)
+gradient = 1
+gradient_count = 4
+gradient_color_1 = '#6488C4'
+gradient_color_2 = '#97BBF7'
+gradient_color_3 = '#C0B7F9'
+gradient_color_4 = '#EE829F'
+
+[smoothing]
+noise_reduction = 77

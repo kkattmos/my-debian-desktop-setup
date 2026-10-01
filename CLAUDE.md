@@ -133,6 +133,31 @@ never `overridden-settings`).
 - Not yet done: 20-wifi.sh (unknown), 40/41 course tools via the scripts, 90 (Ubuntu still kept).
   guide.html has NOT been updated for 37 / Gooey yet (still says Tokyo Night, 88%).
 
+## Second machine: HP Mini 311 (`hp-mini-311/`, branch `hp-mini-311`)
+- HP Mini 311-1000: Atom N280 (**32-bit only**, no AES-NI), legacy BIOS, 2.7 GiB RAM, 320 GB HDD `sda`,
+  NVIDIA ION (nouveau), Ethernet `forcedeth`, Broadcom BCM4312 `14e4:4315` (b43 → `firmware-b43-installer`,
+  contrib, downloads at install), Ralink RT3070 USB dongle (`rt2870.bin` in firmware-misc-nonfree).
+  CMOS clock was months behind. Hardware facts come from `hw-report.sh` output - ask for a new one rather than assume.
+- Agreed (2026-10-01): **Debian 12 bookworm i386** (Debian 13 has no i386 kernel/installer; bookworm LTS to
+  2028-06-30), wipe whole disk, LUKS + Btrfs + Snapper kept, **Xfce 4.18** (X11), Ly kept (Zig `x86-linux`,
+  X11 support on), xfwm4 built-in tiling, picom 9.1 `--experimental-backends` dual_kawase blur (terminal,
+  panels, Firefox), LibreOffice instead of ONLYOFFICE, `seaf-cli` sync instead of SeaDrive, Neovim **built on the
+  Mini** + tree-sitter CLI via rustup. Skipped (64-bit only): Docker, PhotoPrism, STM32CubeIDE, Packet Tracer.
+- Scripts: `m10-system.sh` (sudo, twice), `m30-user.sh` (calls m37 + m31), `m31-neovim.sh`, `m37-xfce-look.sh`,
+  `m32-check.sh`, `gooey-gtk3-theme.py`. Shared with the Dell: `35-thai-font.sh`, `20-wifi.sh`,
+  `dotfiles/{fastfetch,nvim,firefox}`. Mini-only files in `hp-mini-311/dotfiles/`.
+- NOT yet run on the Mini (written 2026-10-01). Unverified until then: Ly + Xorg start, picom speed on ION,
+  Firefox see-through on X11 (`widget.transparent-windows`), xfwm4 themerc colour keys, `<Super><Shift>N`
+  bindings, power-manager `show-panel-label=1` = percentage, the GTK3 colour mapping (check screenshots).
+- Lessons from writing it:
+  - Verify i386 package names against `dists/bookworm/*/binary-i386/Packages.xz`; inspect real .debs
+    (`dpkg-deb -x`) for xfconf property names instead of guessing.
+  - All official 32-bit tree-sitter CLI builds need glibc 2.39 (bookworm: 2.36) → build with cargo.
+  - A user `~/.config/gtk-3.0/gtk.css` outranks the Xfce panel's and terminal's own backgrounds (USER >
+    APPLICATION priority) → recolour a whole theme instead (gooey-gtk3-theme.py, assets via `resource:///`).
+  - xfwm4 ignores `/xfwm4/custom/*` shortcuts unless `/xfwm4/custom/override=true` with a full copy of the defaults.
+  - PyPI has no i686 wheels for psutil/tornado/debugpy → Debian's python3-* packages + `venv --system-site-packages`.
+
 ## Hard-won lessons (bugs already hit - don't reintroduce)
 - **`gsettings set` exits 0 even when it cannot save** (no session bus) - it only warns.
   `gsettings get` reads the dconf file directly, so it does NOT prove the bus works. GNOME settings

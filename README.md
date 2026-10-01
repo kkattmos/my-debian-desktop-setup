@@ -336,6 +336,15 @@ dotfiles/
 
 ---
 
+## Second machine: HP Mini 311 (32-bit)
+
+The same setup for a 2009 netbook with a 32-bit Atom N280: Debian 12 i386 + Xfce, the Gooey look via
+its own GTK3 theme and picom blur, Neovim compiled on the machine. What carries over, what doesn't
+(Docker, PhotoPrism, ONLYOFFICE, SeaDrive, STM32CubeIDE and Packet Tracer have no 32-bit builds) and the
+step-by-step install are in [`hp-mini-311/README.md`](hp-mini-311/README.md).
+
+---
+
 ## Lessons learned the hard way
 
 Each of these broke something during setup and is now handled by the scripts:

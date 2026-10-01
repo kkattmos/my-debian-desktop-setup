@@ -3,3 +3,5 @@ commands.txt
 # backups made by the scripts or by hand
 *.bak
 *.part
+# Python bytecode
+__pycache__/

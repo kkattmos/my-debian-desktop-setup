@@ -1,0 +1,16 @@
+# ~/.config/systemd/user/seafile.service (HP Mini 311) - Seafile sync client (Debian's seafile-cli 8.0;
+# SeaDrive has no 32-bit build). Syncs the libraries chosen in m30-user.sh into ~/Seafile/<library>.
+# Starts at boot (user lingering is enabled). Status: seaf-cli status   On/off: svc seafile on|off
+[Unit]
+Description=Seafile sync client (seaf-cli)
+After=default.target
+
+[Service]
+Type=forking
+ExecStart=/usr/bin/seaf-cli start
+ExecStop=/usr/bin/seaf-cli stop
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=default.target
