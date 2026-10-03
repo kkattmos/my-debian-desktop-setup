@@ -18,7 +18,17 @@ return {
   {
     "GCBallesteros/jupytext.nvim",
     lazy = false,
-    opts = { style = "percent", output_extension = "auto", force_ft = nil },
+    opts = {
+      style = "percent",
+      output_extension = "auto",
+      force_ft = nil,
+      -- The plugin passes `--to auto:percent` to jupytext, which needs metadata.language_info.
+      -- Colab notebooks only have a kernelspec, so jupytext fails ("does not have a 'language_info'").
+      -- Naming the extension makes it `--to py:percent`.
+      custom_language_formatting = {
+        python = { extension = "py", style = "percent", force_ft = "python" },
+      },
+    },
     init = function()
       -- jupytext.nvim reads the .ipynb from disk first and crashes (utils.lua:16) on a new or
       -- empty file, e.g. `nvim new.ipynb`. Write an empty Python notebook before it runs
