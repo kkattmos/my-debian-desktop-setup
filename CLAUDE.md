@@ -50,7 +50,10 @@ fstab uses `UUID=<btrfs fs uuid>`. Snapper snapshots only `/` (apt pre/post, kee
 - PhotoPrism: native `.deb` (not Docker), SQLite, user service.
 - SeaDrive: **CLI** AppImage as a systemd **user** service + `loginctl enable-linger` (starts at boot).
 - Neovim: upstream release tarball (Debian's 0.10 is too old) + LazyVim; `.ipynb` via
-  jupytext.nvim + molten-nvim (python venv `~/.local/share/nvim-py`).
+  jupytext.nvim + molten-nvim (python venv `~/.local/share/nvim-py`, also the `python3` kernel, with
+  numpy/scipy/matplotlib/pandas/sympy). Colab-like layout (2026-10-03): jupytext **Markdown** style (not `# %%`),
+  render-markdown draws the cells, otter.nvim gives pyright in code blocks, kernel auto-starts on open,
+  `Alt+Enter` = run + next cell. `~/.config/jupytext/jupytext.toml` hides the notebook metadata header.
 - Shell: plain zsh + **Powerlevel10k** (git clone to `~/.local/share/powerlevel10k`, no oh-my-zsh; user wanted the
   `p10k configure` wizard, 2026-09-28 - replaced Starship) + Debian-packaged plugins, one `~/.zshrc`.
   `~/.p10k.zsh` holds the wizard's answers and is never overwritten.
@@ -113,7 +116,7 @@ fstab uses `UUID=<btrfs fs uuid>`. Snapper snapshots only `/` (apt pre/post, kee
 | `90-absorb-ubuntu.sh` | `sudo`, later | moves Debian onto p2 (btrfs device add/remove), deletes p3, grows p2; resumable |
 
 `dotfiles/` mirrors the live files: `zshrc`, `fastfetch/`, `cava/`, `nvim/lua/plugins/` (colorscheme, notebook,
-web), `gnome-shell/extensions/`, `dconf/`, `gtk-4.0/`, `firefox/`, `onlyoffice/`, `systemd/`.
+web), `gnome-shell/extensions/`, `dconf/`, `gtk-4.0/`, `firefox/`, `onlyoffice/`, `systemd/`, `jupytext/`.
 When the user tweaks the look by hand, copy the live file back into `dotfiles/` (`dconf dump` for dconf dirs;
 drop internal keys like `rounded-blur-found`, and for Tiling Shell keep only `layouts-json`/`selected-layouts`,
 never `overridden-settings`).
@@ -187,6 +190,12 @@ never `overridden-settings`).
   in per-resolution subfolders, so cloning the repo into `/boot/grub/themes` doesn't work. After a menu entry is
   picked, the theme is gone and `05_debian_theme`'s background shows (desktop-base's blue one unless
   `GRUB_BACKGROUND` is set). `/boot/grub/grub.cfg` is root-only (0600): Claude can't read it, ask the user.
+- Notebooks: jupytext.nvim's `output_extension = "auto"` makes it call `jupytext --to auto:...`, which fails on Colab
+  notebooks (no `language_info`) - keep an explicit extension. molten can't start a kernel until
+  `~/.local/share/jupyter/runtime/` exists (notebook.lua creates it). `MoltenImportOutput` prints
+  "Out[_]: Never Run" under cells without output, so notebook.lua imports from a filtered temp copy.
+  `jupytext --update` drops cell metadata when `cell_metadata_filter` is set - only filter notebook metadata.
+  Test notebook changes headless on a COPY of a SeaDrive notebook, never the original.
 - `run 37 on the laptop` = safe verification: every value equals the live state, put() only writes `.bak` when a file differs.
 
 ## Working conventions

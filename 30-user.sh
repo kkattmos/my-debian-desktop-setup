@@ -55,12 +55,18 @@ step "tree-sitter CLI (newer than Debian's, needed by nvim-treesitter)"
 npm config set prefix ~/.local
 npm install -g tree-sitter-cli
 
-step "Python env for Neovim notebooks (pynvim, jupyter_client, jupytext, ipykernel)"
+step "Python env for Neovim notebooks (pynvim, jupyter_client, jupytext, ipykernel + Colab basics)"
 python3 -m venv ~/.local/share/nvim-py
 ~/.local/share/nvim-py/bin/pip install -q --upgrade pip
 ~/.local/share/nvim-py/bin/pip install -q pynvim jupyter_client jupytext nbformat ipykernel
+# the python3 kernel runs in this venv: the libraries Colab has preinstalled, Pillow for plots,
+# pylatexenc's latex2text for rendering $math$ in Markdown cells
+~/.local/share/nvim-py/bin/pip install -q numpy scipy matplotlib pandas sympy pillow pylatexenc
 ln -sf ~/.local/share/nvim-py/bin/jupytext ~/.local/bin/jupytext
 ~/.local/share/nvim-py/bin/python -m ipykernel install --user --name python3 --display-name "Python 3 (nvim-py)"
+# jupytext.nvim: hide the notebook metadata header in the buffer (kept in the .ipynb)
+mkdir -p ~/.config/jupytext
+cp "$DOT/jupytext/jupytext.toml" ~/.config/jupytext/jupytext.toml
 
 step "LazyVim"
 if [[ ! -d ~/.config/nvim ]]; then

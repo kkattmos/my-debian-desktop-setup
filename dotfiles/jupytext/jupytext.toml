@@ -1,0 +1,4 @@
+# Used by jupytext.nvim when Neovim opens a .ipynb: don't show the notebook metadata
+# (kernelspec, Colab info, ...) as a header in the buffer. `jupytext --update` takes it
+# from the existing .ipynb when saving, so nothing is lost.
+notebook_metadata_filter = "-all"

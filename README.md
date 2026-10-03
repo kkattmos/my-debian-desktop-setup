@@ -111,10 +111,14 @@ To save that last hour, remove `firefox-esr` from Blur my Shell → Applications
 - **Latest upstream Neovim** (Debian's 0.10 is too old for LazyVim), checksum-verified, in `~/.local`.
 - **LazyVim** with the Python, TypeScript/React, Tailwind, JSON, Markdown, Docker, Prettier and ESLint extras.
   Mason installs pyright, ruff, vtsls, eslint, prettier, tailwind, json and emmet.
-- **Jupyter notebooks in Neovim:** opening `x.ipynb` shows Python with `# %%` cells
-  ([jupytext.nvim](https://github.com/GCBallesteros/jupytext.nvim)).
-  [molten-nvim](https://github.com/benlubas/molten-nvim) runs them on a real kernel with inline output
-  (`\mi` start kernel, `\rc` run cell, `\ro` show output). Outputs are saved back into the `.ipynb`.
+- **Jupyter notebooks in Neovim, laid out like Colab:** opening `x.ipynb` shows rendered Markdown text cells
+  (headings, `$math$`) and each code cell as a shaded box
+  ([jupytext.nvim](https://github.com/GCBallesteros/jupytext.nvim) in Markdown mode +
+  [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim)), with pyright inside the cells
+  ([otter.nvim](https://github.com/jmbuhr/otter.nvim)). [molten-nvim](https://github.com/benlubas/molten-nvim)
+  connects a kernel on open, shows saved outputs under their cells and runs cells: `Alt+Enter` run and go to the
+  next cell, `\rc` run cell, `\ra` run all, `]c`/`[c` move between cells, `\cb` new cell. Plots open in the image
+  viewer. Outputs are saved back into the `.ipynb`. The kernel venv has numpy, scipy, matplotlib, pandas and sympy.
 - **Gooey colour scheme** with a transparent background, and `:terminal` uses the same ANSI colours as Ptyxis.
 - A printable two-page cheat sheet: [`neovim-cheatsheet.pdf`](neovim-cheatsheet.pdf).
 
@@ -310,7 +314,8 @@ execute bit. Every script is idempotent: it checks state first, keeps `.bak` cop
 dotfiles/
 ├── zshrc                        ~/.zshrc
 ├── fastfetch/ cava/             ~/.config/...
-├── nvim/lua/plugins/            colorscheme (Gooey), notebook (jupytext + molten), web (Mason list)
+├── nvim/lua/plugins/            colorscheme (Gooey), notebook (jupytext + molten + otter), web (Mason list)
+├── jupytext/jupytext.toml       ~/.config/jupytext (hides the notebook header in Neovim)
 ├── gnome-shell/extensions/      Gooey Shell + Workspace Label (my own extensions)
 ├── dconf/                       Blur my Shell and Tiling Shell settings (dconf load)
 ├── gtk-4.0/gtk.css              Gooey for every libadwaita app
@@ -332,7 +337,7 @@ dotfiles/
 | Record the screen | `Ctrl+Shift+Alt+R` |
 | Update with snapshots | `update`, then `snaps` to list them |
 | Docker / PhotoPrism on demand | `svc docker on`, `svc photoprism on` |
-| Notebook in Neovim | `nvim x.ipynb`, `\mi` start kernel, `\rc` run cell |
+| Notebook in Neovim | `nvim x.ipynb`, `Alt+Enter` run cell and go to the next, `\ra` run all |
 
 ---
 
