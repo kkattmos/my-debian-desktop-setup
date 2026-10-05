@@ -191,7 +191,7 @@ kbd{font:600 12px var(--f-mono);border:1px solid var(--line);border-bottom-width
       <tr><td>Login</td><td><strong>Ly 1.4.1</strong>, built from source with Zig 0.16, Wayland only. <span class="how">It isn’t in Debian 13 or sid.</span></td></tr>
       <tr><td>Screen recording</td><td>GNOME’s built-in recorder (<kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>Alt</kbd><kbd>R</kbd>). <span class="how">It needs <code>gstreamer1.0-pipewire</code> and <code>plugins-good</code>, which are included. Kooha is an optional add-on if you need audio.</span></td></tr>
       <tr><td>Apps</td><td>ONLYOFFICE 9.4 (official repo), Wireshark 4.4, Packet Tracer 9.0.1 (the Ubuntu .deb), STM32CubeIDE 1.9.1 (ST’s generic installer), Firefox ESR. No Chrome.</td></tr>
-      <tr><td>Wi-Fi</td><td>NetworkManager profiles copied from your Ubuntu setup. ChulaWiFi uses PEAP / MSCHAPv2 with domain match <code>wifi.it.chula.ac.th</code>. Home Wi-Fi uses a WPA2 password.</td></tr>
+      <tr><td>Wi-Fi</td><td>NetworkManager profiles copied from your Ubuntu setup. ChulaWiFi and eduroam use PEAP / MSCHAPv2 (domain match <code>wifi.it.chula.ac.th</code> / <code>it.chula.ac.th</code>; eduroam username = ID<code>@eduroam.chula.ac.th</code>). Chula&rsquo;s login server only speaks TLS 1.0/1.1, which Debian&rsquo;s OpenSSL refuses, so both profiles re-enable it. Home Wi-Fi uses a WPA2 password.</td></tr>
       <tr><td>SeaDrive</td><td>The <strong>CLI</strong> AppImage (3.0.26) runs as a systemd user service and starts at boot (linger). It mounts at <code>~/SeaDrive</code>, the same path as now. <span class="how">It reaches your server over Tailscale.</span></td></tr>
       <tr><td>PhotoPrism</td><td>The native <code>.deb</code> (no Docker) with SQLite. The service is <em>off</em> until you run <code>svc photoprism on</code>. The <code>photoprism</code> CLI uses the same settings.</td></tr>
       <tr><td>Docker</td><td>Docker CE 29 + compose + buildx. Off at boot; <code>svc docker on|off</code> toggles it. Its data lives in its own subvolume, which snapshots skip.</td></tr>
@@ -315,7 +315,7 @@ systemctl reboot</pre></div>
 
   <div class="step"><div class="num">4</div><div>
     <h3>Log in through Ly → GNOME, then Wi-Fi and user setup <span class="where">GNOME terminal</span></h3>
-    <div class="term"><pre>bash ~/debian13-setup/20-wifi.sh     <span class="c"># ChulaWiFi + home SSIDs, passwords asked, stored root-only</span>
+    <div class="term"><pre>bash ~/debian13-setup/20-wifi.sh     <span class="c"># ChulaWiFi + eduroam + home SSIDs, passwords asked, stored root-only</span>
 bash ~/debian13-setup/30-user.sh     <span class="c"># zsh, fonts, Neovim+LazyVim, Tiling Shell, Ptyxis look, Tailscale login, SeaDrive, PhotoPrism</span></pre></div>
     <p><code>30-user.sh</code> gets a SeaDrive token from your server with your password once (the password isn’t saved). It enables <code>seadrive.service</code> and turns on lingering, so the drive mounts at boot even before you log in. Log out and back in afterwards so zsh, the new groups and the tiling extension take effect, then run <code>bash ~/debian13-setup/32-check.sh</code> to confirm everything took.</p>
   </div></div>
@@ -337,7 +337,7 @@ bash ~/debian13-setup/41-packettracer.sh  ~/debian13-stash/CiscoPacketTracer_901
     <div class="card"><h4>Terminal look</h4><p>Ptyxis → <kbd>Ctrl</kbd>+<kbd>,</kbd> → Profiles changes the palette and transparency. <code>cava</code> shows audio bars, and <code>fastfetch</code> shows system info (set <code>FASTFETCH_ON_START=0</code> in <code>~/.zshrc</code> to stop it opening every tab). Its layout lives in <code>~/.config/fastfetch/config.jsonc</code>.</p></div>
     <div class="card"><h4>Docker &amp; PhotoPrism on/off</h4><p><code>svc docker on</code> · <code>svc docker off</code><br><code>svc photoprism on</code> → http://localhost:2342<br><code>photoprism index</code> works in any terminal.</p></div>
     <div class="card"><h4>SeaDrive</h4><p>Starts at boot automatically. <code>svc seadrive status</code> shows its state; the log is at <code>~/.seadrive/logs/seadrive.log</code>. The cache limit is set in <code>~/.config/seadrive/seadrive.conf</code>.</p></div>
-    <div class="card"><h4>Notebooks in Neovim</h4><p>Open <code>x.ipynb</code>: text cells are rendered, code cells are boxes, and the kernel starts by itself. <kbd>Alt</kbd>+<kbd>Enter</kbd> runs a cell and moves to the next, <code>\ra</code> runs all, <code>]c</code>/<code>[c</code> jump between cells, <code>\cb</code> adds a cell. Plots open in the image viewer. To use a project venv: <code>pip install ipykernel &amp;&amp; python -m ipykernel install --user --name proj</code>.</p></div>
+    <div class="card"><h4>Notebooks in Neovim</h4><p>Open <code>x.ipynb</code>: text cells are rendered, code cells are boxes, and the kernel starts by itself. <kbd>Alt</kbd>+<kbd>Enter</kbd> runs a cell and moves to the next, <code>\ra</code> runs all, <code>]c</code>/<code>[c</code> jump between cells, <code>\cb</code> adds a cell. Open notebooks with <code>nb x.ipynb</code> (or from Files): that uses <strong>kitty</strong>, which draws plots under the cell. Ptyxis can’t show images, so plots there open in the image viewer. To use a project venv: <code>pip install ipykernel &amp;&amp; python -m ipykernel install --user --name proj</code>.</p></div>
     <div class="card"><h4>Updates &amp; snapshots</h4><p><code>update</code> runs apt with an automatic before/after snapshot. <code>snaps</code> lists snapshots. Thai keyboard: <kbd>Super</kbd>+<kbd>Space</kbd>.</p></div>
   </div>
   <details><summary>Rolling back a bad update</summary><div>
@@ -380,6 +380,7 @@ reboot</pre></div>
     <div class="card"><h4>PhotoPrism × SeaDrive</h4><p>If PhotoPrism’s originals folder is inside <code>~/SeaDrive</code>, indexing reads every photo, so SeaDrive downloads them all into its cache. Keep originals local (default <code>~/Pictures</code>) or raise the cache limit.</p></div>
     <div class="card"><h4>Two GRUBs</h4><p>An Ubuntu update can make Ubuntu’s GRUB the default again. Use the laptop’s boot menu key, or <code>sudo efibootmgr -o</code> to put Debian first.</p></div>
     <div class="card"><h4>Docker group = root</h4><p>Being in the <code>docker</code> group is effectively root access. That’s acceptable on a single-user laptop; remove yourself with <code>gpasswd -d $USER docker</code> if you’d rather type sudo.</p></div>
+    <div class="card"><h4>ChulaWiFi keeps asking for the password</h4><p>The login fails at the TLS step: Chula&rsquo;s server only offers TLS 1.0/1.1. <code>20-wifi.sh</code> sets <code>802-1x.phase1-auth-flags 0x60</code> and <code>802-1x.openssl-ciphers DEFAULT@SECLEVEL=0</code> on both profiles. To see the real error, run <code>/usr/sbin/wpa_cli -i wlp2s0</code> while connecting (look for <code>local TLS alert</code>).</p></div>
     <div class="card"><h4>ChulaWiFi certificate check</h4><p>This copies your Ubuntu profile exactly (domain match, no CA bundle). If it still connects with <code>802-1x.system-ca-certs yes</code>, turn that on for a stronger check.</p></div>
   </div>
 </section>
@@ -390,7 +391,7 @@ reboot</pre></div>
   <ul class="files">
     <li><code>00-ubuntu-prep.sh</code> checks p3, downloads and verifies the ISO, stashes the installers, writes the USB</li>
     <li><code>10-system.sh</code> sets up the whole system as root, in two runs (Btrfs layout first, then repos, packages, Ly, zram, Snapper, Docker off)</li>
-    <li><code>20-wifi.sh</code> creates the ChulaWiFi (PEAP) and home WPA2 profiles</li>
+    <li><code>20-wifi.sh</code> creates the ChulaWiFi + eduroam (PEAP) and home WPA2 profiles</li>
     <li><code>30-user.sh</code> sets up zsh, the Nerd Font, the Sarabun Thai font, Neovim/LazyVim, Tiling Shell, the terminal look, Tailscale, SeaDrive and PhotoPrism</li>
     <li><code>31-gnome-settings.sh</code> installs Tiling Shell and writes the GNOME settings as system defaults, and resets any value GNOME saved for you at first login that would hide them (run it in a GNOME terminal; called by 30)</li>
     <li><code>32-check.sh</code> prints a read-only status report of the session, shell, GNOME settings and services</li>

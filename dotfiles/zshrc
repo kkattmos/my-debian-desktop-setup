@@ -80,6 +80,11 @@ svc() {
   esac
 }
 
+# ---------- Jupyter notebook in Neovim, in kitty so plots show inline: nb x.ipynb ----------
+nb() {
+  if [[ -n $KITTY_WINDOW_ID ]]; then nvim "$@"; else kitty --detach nvim "$@"; fi
+}
+
 # PhotoPrism CLI uses the same settings as the service (photoprism index / import / backup ...)
 [[ -f ~/.config/photoprism/photoprism.env ]] && { set -a; source ~/.config/photoprism/photoprism.env; set +a; }
 

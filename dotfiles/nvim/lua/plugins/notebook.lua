@@ -7,7 +7,9 @@
 -- otter.nvim: pyright/ruff completion, hover and diagnostics inside the code cells.
 -- molten-nvim: a Jupyter kernel ("python3" = ~/.local/share/nvim-py) starts when the notebook opens,
 --   saved outputs are shown under their cells, and new outputs are saved into the .ipynb.
---   Images (plots) open in the image viewer.
+-- Plots: inside kitty (`nb x.ipynb`, or opening a .ipynb from Files) image.nvim draws them under the
+--   cell with the kitty graphics protocol. Ptyxis can't draw images (it doesn't enable VTE's sixel
+--   support), so there they open in the image viewer instead.
 --
 -- Keys in a notebook (\ is the localleader):
 --   Alt+Enter / \rn  run cell, go to the next one (adds a cell at the end)
@@ -19,6 +21,7 @@
 --   pip install ipykernel && python -m ipykernel install --user --name <project>
 
 local CELL_START, CELL_END = "^```python", "^```%s*$"
+local IN_KITTY = vim.env.KITTY_WINDOW_ID ~= nil
 
 -- Code cells of the current buffer: { open = fence line, close = fence line } (1-based)
 local function code_cells()
@@ -206,6 +209,24 @@ return {
     },
   },
   {
+    "3rd/image.nvim",
+    lazy = true, -- loaded by molten, only when nvim runs in kitty
+    build = false, -- the magick_cli processor needs no luarocks
+    opts = {
+      backend = "kitty",
+      processor = "magick_cli", -- ImageMagick (apt) resizes and crops the plots
+      -- only molten's outputs: no images from Markdown/HTML links (and no downloads)
+      integrations = vim.iter({ "markdown", "asciidoc", "neorg", "rst", "typst", "html", "css" })
+        :fold({}, function(t, k) t[k] = { enabled = false } return t end),
+      max_width = 100,
+      max_height = 20, -- lines; like Colab's default figure height
+      max_height_window_percentage = math.huge,
+      max_width_window_percentage = math.huge,
+      window_overlap_clear_enabled = true, -- hide plots under popups (completion, hover)
+      window_overlap_clear_ft_ignore = { "cmp_menu", "cmp_docs", "blink-cmp-menu", "blink-cmp-documentation", "" },
+    },
+  },
+  {
     "benlubas/molten-nvim",
     version = "^1.0.0",
     lazy = false,
@@ -214,8 +235,9 @@ return {
       -- molten writes the kernel connection file here but doesn't create the folder
       -- ("Could not initialize kernel ... No such file or directory")
       vim.fn.mkdir(vim.fn.expand("~/.local/share/jupyter/runtime"), "p")
-      vim.g.molten_image_provider = "none"
-      vim.g.molten_auto_image_popup = true -- plots open in the image viewer (Loupe)
+      vim.g.molten_image_provider = IN_KITTY and "image.nvim" or "none"
+      vim.g.molten_image_location = "virt" -- under the cell, not in the output popup
+      vim.g.molten_auto_image_popup = not IN_KITTY -- Ptyxis: plots open in the image viewer (Loupe)
       vim.g.molten_auto_open_output = false
       vim.g.molten_virt_text_output = true -- output stays visible under the cell
       vim.g.molten_virt_lines_off_by_1 = true -- below the closing ``` of the cell

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Notebook (Neovim)
+Comment=Open a Jupyter notebook in Neovim, in kitty so plots show inline
+Exec=kitty -e nvim %f
+Icon=kitty
+Terminal=false
+MimeType=application/x-ipynb+json;
+Categories=Development;
+StartupWMClass=kitty

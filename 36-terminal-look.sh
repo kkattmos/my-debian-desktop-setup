@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Terminal look: Ptyxis (Gooey palette, 70% opaque navy, JetBrainsMono Nerd Font) + fastfetch
-# at the top of each new Ptyxis tab + cava audio visualizer. Called by 30-user.sh; safe to rerun:
+# at the top of each new Ptyxis tab + cava audio visualizer. kitty with the same look for Jupyter
+# notebooks in Neovim (it can draw plots inline, Ptyxis can't). Called by 30-user.sh; safe to rerun:
 #   bash 36-terminal-look.sh
 # Settings are YOUR (per-user) Ptyxis settings, so Ptyxis' Preferences (Ctrl+,) can change them later.
 # The blur behind the window comes from Blur my Shell (31 installs it, 37 configures it).
@@ -15,10 +16,10 @@ FONT='JetBrainsMono Nerd Font 12'
 
 echo "== Packages"
 missing=()
-for p in ptyxis fastfetch cava; do
+for p in ptyxis fastfetch cava kitty imagemagick; do
   dpkg-query -W -f='${Status}' "$p" 2>/dev/null | grep -q 'ok installed' || missing+=("$p")
 done
-if (( ${#missing[@]} )); then sudo apt-get install -y "${missing[@]}"; else echo "  ptyxis fastfetch cava already installed"; fi
+if (( ${#missing[@]} )); then sudo apt-get install -y "${missing[@]}"; else echo "  ptyxis fastfetch cava kitty imagemagick already installed"; fi
 
 echo "== Ptyxis settings"
 # dconf write needs the user session bus (unlike gsettings it fails loudly without one)
@@ -74,6 +75,13 @@ put "$DOT/fastfetch/config.jsonc" ~/.config/fastfetch/config.jsonc
 put "$DOT/cava/config" ~/.config/cava/config
 put "$DOT/zshrc" ~/.zshrc
 
+echo "== kitty for notebooks (nb x.ipynb; .ipynb files from Files open there too)"
+put "$DOT/kitty/kitty.conf" ~/.config/kitty/kitty.conf
+put "$DOT/applications/nvim-notebook.desktop" ~/.local/share/applications/nvim-notebook.desktop
+update-desktop-database ~/.local/share/applications 2>/dev/null || true
+xdg-mime default nvim-notebook.desktop application/x-ipynb+json
+echo "  .ipynb opens with: $(xdg-mime query default application/x-ipynb+json)"
+
 echo
 echo "Done. Open Ptyxis (Activities -> Terminal / Ptyxis). fastfetch runs at the top of each new tab;"
-echo "turn that off in ~/.zshrc (FASTFETCH_ON_START=0). Audio bars: cava"
+echo "turn that off in ~/.zshrc (FASTFETCH_ON_START=0). Audio bars: cava. Notebooks: nb x.ipynb"

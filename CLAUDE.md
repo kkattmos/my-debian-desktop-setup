@@ -24,6 +24,9 @@ https://claude.ai/artifact/F62ZrkQMFMyFxCmGKEMHXu (republish with the Artifact t
   (rtw89 driver, needs `firmware-realtek`), Intel SOF audio, 1 TB NVMe `nvme0n1`, screen 2240×1400 (16:10), battery ~42 Wh (80% health).
 - User `kkattmos` (uid 1000). Chulalongkorn student: ChulaWiFi is WPA2-Enterprise PEAP/MSCHAPv2,
   domain match `wifi.it.chula.ac.th`, no CA cert (copied from the Ubuntu NetworkManager profile).
+  eduroam: same credentials, identity `<ID>@eduroam.chula.ac.th`, anonymous `anonymous@eduroam.chula.ac.th`,
+  domain match `it.chula.ac.th` (its RADIUS cert is CN=it.chula.ac.th, so the `wifi.` suffix fails). Priorities:
+  ChulaWiFi 10, eduroam 5, everything else 0.
 - The Seafile server is reached over **Tailscale** (tailnet address), so Tailscale must be up before SeaDrive.
 
 ## Disk layout (as installed)
@@ -54,6 +57,9 @@ fstab uses `UUID=<btrfs fs uuid>`. Snapper snapshots only `/` (apt pre/post, kee
   numpy/scipy/matplotlib/pandas/sympy). Colab-like layout (2026-10-03): jupytext **Markdown** style (not `# %%`),
   render-markdown draws the cells, otter.nvim gives pyright in code blocks, kernel auto-starts on open,
   `Alt+Enter` = run + next cell. `~/.config/jupytext/jupytext.toml` hides the notebook metadata header.
+  Inline plots (2026-10-03): notebooks run in **kitty** (`nb` zsh function, `nvim-notebook.desktop` = default for
+  `application/x-ipynb+json`), image.nvim kitty backend + ImageMagick (`magick_cli`); only when `$KITTY_WINDOW_ID`
+  is set, else plots pop up in Loupe. Ptyxis stays the default terminal. kitty is on the blur whitelist.
 - Shell: plain zsh + **Powerlevel10k** (git clone to `~/.local/share/powerlevel10k`, no oh-my-zsh; user wanted the
   `p10k configure` wizard, 2026-09-28 - replaced Starship) + Debian-packaged plugins, one `~/.zshrc`.
   `~/.p10k.zsh` holds the wizard's answers and is never overwritten.
@@ -86,7 +92,8 @@ fstab uses `UUID=<btrfs fs uuid>`. Snapper snapshots only `/` (apt pre/post, kee
   - Also enabled: **Switch Workspace** (`switchWorkSpace@sun.wxg@gmail.com`, `Ctrl+Above_Tab`).
     `System_Monitor@bghome.gmail.com` is a stale enabled-list entry with no files; 31 drops it.
   - Firefox ESR: `user.js` + `chrome/userChrome.css` (solid navy header, `#browser` 70% navy) + `userContent.css`.
-    The user's Kanagawa Wave True theme stays installed; overrides need `!important`.
+    The user's Kanagawa Wave theme stays installed; overrides need `!important`. (After the ESR 153 upgrade the
+    active theme was "System theme — auto", Kanagawa disabled; the CSS works with either.)
   - ONLYOFFICE: `~/.local/share/onlyoffice/Gooey.json` (imported once by hand; the imported copy is
     `desktopeditors/uithemes/Gooey.json`). Last key injects a CSS rule forcing Cantarell (workaround).
   - Papirus-Dark icons, Cantarell 12, 24h clock, battery %, wallpaper `wallhaven-72mrmv.jpg` (sha256-pinned,
@@ -102,21 +109,21 @@ fstab uses `UUID=<btrfs fs uuid>`. Snapper snapshots only `/` (apt pre/post, kee
 |---|---|---|
 | `00-ubuntu-prep.sh` | user, on Ubuntu | ISO download/verify, stash, write USB |
 | `10-system.sh <user>` | `sudo`, twice | run 1: Btrfs subvolumes + compression + disable Ubuntu swap, reboot; run 2: everything else |
-| `20-wifi.sh` | user | ChulaWiFi + home Wi-Fi via nmcli (system-owned secrets); no SSIDs in the file |
+| `20-wifi.sh` | user | ChulaWiFi + eduroam + home Wi-Fi via nmcli (system-owned secrets); no SSIDs in the file |
 | `30-user.sh` | **user, no sudo** | zsh, Nerd Font, Neovim/LazyVim, calls 35/31/36/37, Tailscale, SeaDrive (URL asked, no default), PhotoPrism |
 | `31-gnome-settings.sh` | **user, no sudo** | installs 3 e.g.o extensions (Tiling Shell, Blur my Shell, Switch Workspace) + 2 own ones from `dotfiles/gnome-shell/extensions`; GNOME settings as dconf system defaults |
 | `32-check.sh` | user | read-only status report - ask the user for its output first when debugging |
 | `33-clean-root-leftovers.sh` | `sudo` | one-off: removes what an accidental `sudo bash 30-user.sh` put in /root |
 | `34-no-ubuntu-swap.sh` | `sudo` | one-off: masks systemd-gpt-auto-generator (/dev/null symlink), swapoff p6; 10-system.sh now does this too |
 | `35-thai-font.sh` | **user, no sudo** | Sarabun TTFs (Google Fonts) + `~/.config/fontconfig/conf.d/60-thai-sarabun.conf`; called by 30 |
-| `36-terminal-look.sh` | **user** (sudo only for missing pkgs) | ptyxis/fastfetch/cava, Ptyxis profile via `dconf write` + read-back, `~/.config/xdg-terminals.list`, installs fastfetch/cava configs + zshrc (.bak if different); called by 30 |
+| `36-terminal-look.sh` | **user** (sudo only for missing pkgs) | ptyxis/fastfetch/cava + kitty/imagemagick, Ptyxis profile via `dconf write` + read-back, `~/.config/xdg-terminals.list`, installs fastfetch/cava/kitty configs + zshrc (.bak if different), `nvim-notebook.desktop` as the .ipynb default; called by 30 |
 | `37-desktop-look.sh` | **user** (sudo only if no Papirus icons) | `dconf load` Blur my Shell + Tiling Shell layouts (verified key by key), interface keys, wallpaper, gtk.css, nvim colorscheme, Firefox profile files, ONLYOFFICE theme; called by 30. Needs a Firefox ESR profile (start Firefox once) |
 | `38-grub-theme.sh` | `sudo`, optional | Space Isolation GRUB theme v0.2.0 (1920x1080 release tarball, sha256-pinned) → `/boot/grub/themes/space-isolation`; sets GRUB_THEME/BACKGROUND/TERMINAL_OUTPUT/GFXMODE (by sourced value, so quoting differences don't count), update-grub, checks grub.cfg |
 | `40-stm32cubeide.sh`, `41-packettracer.sh` | user | need the user's own downloads (st.com / NetAcad logins) |
 | `90-absorb-ubuntu.sh` | `sudo`, later | moves Debian onto p2 (btrfs device add/remove), deletes p3, grows p2; resumable |
 
 `dotfiles/` mirrors the live files: `zshrc`, `fastfetch/`, `cava/`, `nvim/lua/plugins/` (colorscheme, notebook,
-web), `gnome-shell/extensions/`, `dconf/`, `gtk-4.0/`, `firefox/`, `onlyoffice/`, `systemd/`, `jupytext/`.
+web), `gnome-shell/extensions/`, `dconf/`, `gtk-4.0/`, `firefox/`, `onlyoffice/`, `systemd/`, `jupytext/`, `kitty/`, `applications/`.
 When the user tweaks the look by hand, copy the live file back into `dotfiles/` (`dconf dump` for dconf dirs;
 drop internal keys like `rounded-blur-found`, and for Tiling Shell keep only `layouts-json`/`selected-layouts`,
 never `overridden-settings`).
@@ -133,7 +140,8 @@ never `overridden-settings`).
 - GRUB theme installed by hand 2026-10-01 (same files/values as 38; running 38 changes nothing).
 - **`GRUB_DISABLE_OS_PROBER=false` is missing** from the laptop's `/etc/default/grub` (10-system.sh adds it;
   how it got lost is unknown, no backup), so Ubuntu has no GRUB entry. 32-check shows `GRUB os-prober off`.
-- Not yet done: 20-wifi.sh (unknown), 40/41 course tools via the scripts, 90 (Ubuntu still kept).
+- 2026-10-05: ChulaWiFi fixed by hand + eduroam added (same values as 20-wifi.sh); both tested on campus.
+- Not yet done: 20-wifi.sh (profiles exist, created by hand), 40/41 course tools via the scripts, 90 (Ubuntu still kept).
   guide.html has NOT been updated for 37 / Gooey yet (still says Tokyo Night, 88%).
 
 ## Hard-won lessons (bugs already hit - don't reintroduce)
@@ -162,6 +170,11 @@ never `overridden-settings`).
 - Installer Wi-Fi lands in `/etc/network/interfaces` (ifupdown); 10-system.sh converts it to NetworkManager.
 - `swapon` etc. are in `/usr/sbin`, not on a normal user's PATH - read `/proc/swaps` instead.
 - The installer can't join WPA-Enterprise networks: install over home WPA2-PSK Wi-Fi.
+- **Chula's RADIUS only speaks TLS 1.0/1.1**; Debian 13's OpenSSL 3.5 refuses it (Ubuntu patches wpa_supplicant), so
+  NetworkManager loops on the password dialog. Fix per profile: `802-1x.phase1-auth-flags 0x60` (tls-1-0/1-1-enable)
+  + `802-1x.openssl-ciphers DEFAULT@SECLEVEL=0`. Diagnose with `/usr/sbin/wpa_cli -i wlp2s0` (the user is in
+  `netdev`, no sudo needed; the system journal is not readable): look for `local TLS alert` / `Domain suffix mismatch`.
+  Never print `nmcli -s` output: it shows the password.
 - In the partitioner, the filesystem goes on the `#1` line under the "Encrypted volume" heading,
   not on the raw `crypto` partition (that gives "in use as physical volume for encrypted volume").
 - In Claude's Bash tool on the laptop, `grep` is a wrapper function (ugrep); test regexes with `/usr/bin/grep`.
@@ -181,7 +194,13 @@ never `overridden-settings`).
   - Blur my Shell `dynamic-opacity` un-blurs the focused window - keep it false. Its app blur can't boost
     saturation; only static blur can. Shell popovers (quick settings, calendar) can't be blurred (square corners).
   - Apps not on the blur list must be opaque, or sharp windows behind show through.
-  - Firefox: `--toolbox-bgcolor` also paints the page area; paint `#browser` directly. Check colours by sampling
+  - Firefox ESR 153 (apt upgrade from 140, 2026-10-04) renamed the chrome colour variables (`--toolbox-bgcolor` →
+    `--toolbox-background-color`, `--arrowpanel-background` → `--panel-background-color`, `-bgcolor`/`-color` →
+    `-background-color`/`-text-color`, hover/active/focus moved to the end); old names silently do nothing. To find
+    the current names, unzip `/usr/lib/firefox-esr/{omni.ja,browser/omni.ja}` and read
+    `LightweightThemeConsumer.sys.mjs` + `global/design-system/toolbar.css`. In 153 `--toolbox-background-color`
+    paints `<body>` (header + page area): userChrome resets `body` to transparent and paints `#navigator-toolbox`
+    and `#browser` directly. Check colours by sampling
     the user's screenshots, not by assuming ("Do not guess" - the user's words).
   - ONLYOFFICE's start page reads a different set of theme variables than the editors.
   - Electron apps (Claude desktop, Discord) ignore GTK CSS and create opaque windows.
@@ -190,6 +209,8 @@ never `overridden-settings`).
   in per-resolution subfolders, so cloning the repo into `/boot/grub/themes` doesn't work. After a menu entry is
   picked, the theme is gone and `05_debian_theme`'s background shows (desktop-base's blue one unless
   `GRUB_BACKGROUND` is set). `/boot/grub/grub.cfg` is root-only (0600): Claude can't read it, ask the user.
+- **Ptyxis 48 can't draw images**: VTE 0.80 has sixel built in, but Ptyxis never calls
+  `vte_terminal_set_enable_sixel` (DA1 reply `61;1;21;22;28`, no `4`), and VTE has no kitty graphics protocol.
 - Notebooks: jupytext.nvim's `output_extension = "auto"` makes it call `jupytext --to auto:...`, which fails on Colab
   notebooks (no `language_info`) - keep an explicit extension. molten can't start a kernel until
   `~/.local/share/jupyter/runtime/` exists (notebook.lua creates it). `MoltenImportOutput` prints

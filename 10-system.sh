@@ -141,7 +141,7 @@ PKGS=(
   # Tailscale (your Seafile server is reached over the tailnet)
   tailscale
   # shell + CLI
-  zsh zsh-autosuggestions zsh-syntax-highlighting fzf ripgrep fd-find lazygit bat eza zoxide fastfetch cava
+  zsh zsh-autosuggestions zsh-syntax-highlighting fzf ripgrep fd-find lazygit bat eza zoxide fastfetch cava kitty imagemagick
   # build + dev
   build-essential git wget unzip xz-utils python3-venv python3-pip python3-dev nodejs npm
   # Docker (disabled at boot, toggled with `svc docker on|off`)

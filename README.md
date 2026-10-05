@@ -117,8 +117,10 @@ To save that last hour, remove `firefox-esr` from Blur my Shell → Applications
   [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim)), with pyright inside the cells
   ([otter.nvim](https://github.com/jmbuhr/otter.nvim)). [molten-nvim](https://github.com/benlubas/molten-nvim)
   connects a kernel on open, shows saved outputs under their cells and runs cells: `Alt+Enter` run and go to the
-  next cell, `\rc` run cell, `\ra` run all, `]c`/`[c` move between cells, `\cb` new cell. Plots open in the image
-  viewer. Outputs are saved back into the `.ipynb`. The kernel venv has numpy, scipy, matplotlib, pandas and sympy.
+  next cell, `\rc` run cell, `\ra` run all, `]c`/`[c` move between cells, `\cb` new cell. Outputs are saved back
+  into the `.ipynb`. `nb x.ipynb` (or double-clicking a notebook in Files) opens it in **kitty**, which draws plots
+  under the cell ([image.nvim](https://github.com/3rd/image.nvim)); Ptyxis can't draw images, so there plots open
+  in the image viewer. The kernel venv has numpy, scipy, matplotlib, pandas and sympy.
 - **Gooey colour scheme** with a transparent background, and `:terminal` uses the same ANSI colours as Ptyxis.
 - A printable two-page cheat sheet: [`neovim-cheatsheet.pdf`](neovim-cheatsheet.pdf).
 
@@ -167,7 +169,7 @@ nvme0n1   p1  1 GB    EFI (shared with Ubuntu)
 ### Hardware (Dell Inspiron 14 5440)
 
 Intel Core 7 150U with Intel graphics (the MX570 A is unused), Realtek RTL8852BE Wi-Fi (`firmware-realtek`),
-Intel SOF audio, WPA2-Enterprise university Wi-Fi (PEAP/MSCHAPv2) via NetworkManager.
+Intel SOF audio, WPA2-Enterprise university Wi-Fi + eduroam (PEAP/MSCHAPv2, TLS 1.0/1.1 re-enabled for that server) via NetworkManager.
 
 ---
 
@@ -244,7 +246,7 @@ installer's Wi-Fi to NetworkManager. It also copies the kit to `~/debian13-setup
 Pick **GNOME** in Ly and log in. Open **Firefox once and close it** (this creates the profile that gets themed). Then:
 
 ```
-bash ~/debian13-setup/20-wifi.sh     # university PEAP Wi-Fi + home networks, passwords stored root-only
+bash ~/debian13-setup/20-wifi.sh     # university PEAP Wi-Fi + eduroam + home networks, passwords stored root-only
 bash ~/debian13-setup/30-user.sh     # everything else, see below
 ```
 
@@ -296,7 +298,7 @@ execute bit. Every script is idempotent: it checks state first, keeps `.bak` cop
 |---|---|---|
 | [`00-ubuntu-prep.sh`](00-ubuntu-prep.sh) | user, on Ubuntu | Checks the target partition, downloads + verifies the ISO, stashes the kit, writes the USB |
 | [`10-system.sh`](10-system.sh) `<user>` | `sudo`, twice | Run 1: Btrfs subvolumes + compression, Ubuntu swap off. Run 2: APT, repos, packages, zram, Snapper, Ly, Docker off, PhotoPrism, NetworkManager |
-| [`20-wifi.sh`](20-wifi.sh) | user | University PEAP/MSCHAPv2 Wi-Fi + home WPA2 networks (system-owned secrets, up before login) |
+| [`20-wifi.sh`](20-wifi.sh) | user | University PEAP/MSCHAPv2 Wi-Fi + eduroam (old-TLS server: TLS 1.0/1.1 allowed per profile) + home WPA2 networks (system-owned secrets, up before login) |
 | [`30-user.sh`](30-user.sh) | user | zsh, fonts, Neovim/LazyVim, notebooks, calls 31/35/36/37, Tailscale, SeaDrive, PhotoPrism |
 | [`31-gnome-settings.sh`](31-gnome-settings.sh) | user | Installs the 5 shell extensions; GNOME settings as dconf system defaults, read back and verified |
 | [`32-check.sh`](32-check.sh) | user | Read-only status report (session, shell, extensions, look, GRUB, services, swap) |
@@ -316,6 +318,8 @@ dotfiles/
 ├── fastfetch/ cava/             ~/.config/...
 ├── nvim/lua/plugins/            colorscheme (Gooey), notebook (jupytext + molten + otter), web (Mason list)
 ├── jupytext/jupytext.toml       ~/.config/jupytext (hides the notebook header in Neovim)
+├── kitty/kitty.conf             kitty in the Gooey look, the terminal for notebooks (inline plots)
+├── applications/                nvim-notebook.desktop: .ipynb files open in Neovim in kitty
 ├── gnome-shell/extensions/      Gooey Shell + Workspace Label (my own extensions)
 ├── dconf/                       Blur my Shell and Tiling Shell settings (dconf load)
 ├── gtk-4.0/gtk.css              Gooey for every libadwaita app
@@ -337,7 +341,7 @@ dotfiles/
 | Record the screen | `Ctrl+Shift+Alt+R` |
 | Update with snapshots | `update`, then `snaps` to list them |
 | Docker / PhotoPrism on demand | `svc docker on`, `svc photoprism on` |
-| Notebook in Neovim | `nvim x.ipynb`, `Alt+Enter` run cell and go to the next, `\ra` run all |
+| Notebook in Neovim | `nb x.ipynb` (kitty, inline plots), `Alt+Enter` run cell and go to the next, `\ra` run all |
 
 ---
 
