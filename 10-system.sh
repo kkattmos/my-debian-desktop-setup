@@ -208,6 +208,22 @@ git clone --depth 1 --branch v1.4.1 https://codeberg.org/fairyglade/ly.git
 # Ly's PAM file registers the DESKTOP session as a login-screen ("greeter") session; make it a user session
 sed -i -E 's/(pam_systemd\.so[[:space:]]+)class=greeter/\1class=user/' /etc/pam.d/ly
 grep -n pam_systemd /etc/pam.d/ly
+# Password only, even after 39-fingerprint.sh puts pam_fprintd into common-auth: a fingerprint login gives
+# pam_gnome_keyring no password and the login keyring stays locked. Same stack as login, minus pam_fprintd.
+if grep -Eq '^auth[[:space:]]+include[[:space:]]+login' /etc/pam.d/ly; then
+  awk '/^auth[ \t]+include[ \t]+login/ {
+    print "# Password only (no pam_fprintd): the typed password must reach pam_gnome_keyring."
+    print "# Same auth stack as /etc/pam.d/login + common-auth, minus the fingerprint line."
+    print "auth       optional     pam_faildelay.so  delay=3000000"
+    print "auth       requisite    pam_nologin.so"
+    print "auth       [success=1 default=ignore] pam_unix.so nullok"
+    print "auth       requisite    pam_deny.so"
+    print "auth       required     pam_permit.so"
+    print "auth       optional     pam_group.so"
+    next } { print }' /etc/pam.d/ly > /etc/pam.d/ly.new
+  chmod 644 /etc/pam.d/ly.new && mv /etc/pam.d/ly.new /etc/pam.d/ly
+fi
+grep -n pam_unix /etc/pam.d/ly || echo "!! no pam_unix line in /etc/pam.d/ly - check it before logging in"
 systemctl disable getty@tty2.service
 systemctl enable ly@tty2.service
 systemctl set-default graphical.target

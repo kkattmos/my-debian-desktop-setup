@@ -82,7 +82,11 @@ To save that last hour, remove `firefox-esr` from Blur my Shell → Applications
 - **Minimal GNOME 48:** only the pieces that are used (shell, Settings, Files, Ptyxis, Loupe, Papers,
   File Roller, System Monitor, Disks, Tweaks, Extension Manager). PipeWire audio, power profiles, Bluetooth.
 - **Ly** on tty2 instead of GDM. It's built Wayland-only, and its PAM file is fixed so the desktop gets a
-  proper user session (`class=user`).
+  proper user session (`class=user`). Ly logins always use the password, so the GNOME keyring unlocks.
+  The trade-off: **no lock screen**, because gnome-shell only builds one when GDM is running (Super+L and the
+  auto-lock settings do nothing).
+- **Fingerprint** (optional, [`39-fingerprint.sh`](39-fingerprint.sh)) for `sudo`, `su` and GNOME's password
+  pop-ups.
 - **[Tiling Shell](https://github.com/domferr/tilingshell):** five saved layouts, one per workspace. Hold
   `Ctrl` while dragging to snap a window into a tile; `Super+←/→` moves windows between tiles.
 - **4 fixed workspaces:** `Super+1…4` to switch, `Super+Shift+1…4` to move a window.
@@ -169,7 +173,7 @@ nvme0n1   p1  1 GB    EFI (shared with Ubuntu)
 ### Hardware (Dell Inspiron 14 5440)
 
 Intel Core 7 150U with Intel graphics (the MX570 A is unused), Realtek RTL8852BE Wi-Fi (`firmware-realtek`),
-Intel SOF audio, WPA2-Enterprise university Wi-Fi + eduroam (PEAP/MSCHAPv2, TLS 1.0/1.1 re-enabled for that server) via NetworkManager.
+Intel SOF audio, Goodix fingerprint reader (`27c6:631c`, supported by Debian's libfprint), WPA2-Enterprise university Wi-Fi + eduroam (PEAP/MSCHAPv2, TLS 1.0/1.1 re-enabled for that server) via NetworkManager.
 
 ---
 
@@ -234,6 +238,7 @@ sudo bash ~/debian13-stash/kit/10-system.sh $USER    # run 1: compression + Btrf
 systemctl reboot
 sudo bash ~/debian13-stash/kit/10-system.sh $USER    # run 2: everything else, 10-20 min
 sudo bash ~/debian13-setup/38-grub-theme.sh          # optional: Space Isolation GRUB theme
+sudo bash ~/debian13-setup/39-fingerprint.sh $USER   # optional: enroll a finger, fingerprint for sudo
 systemctl reboot
 ```
 
@@ -301,13 +306,14 @@ execute bit. Every script is idempotent: it checks state first, keeps `.bak` cop
 | [`20-wifi.sh`](20-wifi.sh) | user | University PEAP/MSCHAPv2 Wi-Fi + eduroam (old-TLS server: TLS 1.0/1.1 allowed per profile) + home WPA2 networks (system-owned secrets, up before login) |
 | [`30-user.sh`](30-user.sh) | user | zsh, fonts, Neovim/LazyVim, notebooks, calls 31/35/36/37, Tailscale, SeaDrive, PhotoPrism |
 | [`31-gnome-settings.sh`](31-gnome-settings.sh) | user | Installs the 5 shell extensions; GNOME settings as dconf system defaults, read back and verified |
-| [`32-check.sh`](32-check.sh) | user | Read-only status report (session, shell, extensions, look, GRUB, services, swap) |
+| [`32-check.sh`](32-check.sh) | user | Read-only status report (session, fingerprint, shell, extensions, look, GRUB, services, swap) |
 | [`33-clean-root-leftovers.sh`](33-clean-root-leftovers.sh) | `sudo` | One-off: undoes an accidental `sudo bash 30-user.sh` |
 | [`34-no-ubuntu-swap.sh`](34-no-ubuntu-swap.sh) | `sudo` | One-off: masks `systemd-gpt-auto-generator` so Ubuntu's swap stays off (10 now does this) |
 | [`35-thai-font.sh`](35-thai-font.sh) | user | Sarabun + fontconfig rule, verified with `fc-match -s` |
 | [`36-terminal-look.sh`](36-terminal-look.sh) | user | Ptyxis profile (Gooey, 70%), fastfetch, cava, zshrc |
 | [`37-desktop-look.sh`](37-desktop-look.sh) | user | Blur my Shell + Tiling Shell settings, icons, wallpaper, GTK4 CSS, Firefox, ONLYOFFICE, Neovim colours |
 | [`38-grub-theme.sh`](38-grub-theme.sh) | `sudo`, optional | Space Isolation GRUB theme (sha256-pinned release), also as the "Loading …" background; checks `grub.cfg` |
+| [`39-fingerprint.sh`](39-fingerprint.sh) `<user>` | `sudo`, optional | fprintd, enrolls a finger, fingerprint for `sudo`/`su`/polkit; Ly stays password-only |
 | [`40-stm32cubeide.sh`](40-stm32cubeide.sh) | user | STM32CubeIDE from ST's installer, Xwayland wrapper, udev rules |
 | [`41-packettracer.sh`](41-packettracer.sh) | user | Packet Tracer 9 from the Ubuntu `.deb` |
 | [`90-absorb-ubuntu.sh`](90-absorb-ubuntu.sh) | `sudo`, later | Moves Debian onto Ubuntu's partition and grows it: one encrypted partition, resumable |
@@ -354,6 +360,9 @@ Each of these broke something during setup and is now handled by the scripts:
 - The Debian installer **and** systemd's GPT auto-generator both switch on Ubuntu's unencrypted swap.
 - Ly starts GNOME from a text console, so `TERM=linux` leaks into the whole desktop.
 - Ly's PAM file registers the desktop as a greeter session. `10` rewrites it to `class=user`.
+- Logging in with a fingerprint gives the GNOME keyring no password, so it stays locked and asks again.
+  Ly's PAM file therefore skips the fingerprint.
+- Without GDM, GNOME has no lock screen at all: gnome-shell checks for GDM over D-Bus before building one.
 - `set -euo pipefail` + a `grep` that matches nothing kills a script silently.
 - Setting `GTK_THEME` stops libadwaita from loading its own stylesheet, so apps lose switches and rounded corners.
   Gooey uses `~/.config/gtk-4.0/gtk.css` instead.

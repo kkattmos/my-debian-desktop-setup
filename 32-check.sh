@@ -15,6 +15,11 @@ row "linger" "$(loginctl show-user "$USER" -p Linger --value 2>/dev/null)"
 row "user bus socket" "$([[ -S /run/user/$uid/bus ]] && echo yes || echo NO)"
 row "dbus-user-session" "$(dpkg-query -W -f='${Status}' dbus-user-session 2>/dev/null || echo 'not installed')"
 row "ly PAM pam_systemd" "$(grep -h 'pam_systemd' /etc/pam.d/ly 2>/dev/null | xargs)"
+row "ly PAM auth" "$(awk '$1=="auth" && $2=="include" {print "include " $3 " -> fingerprint login leaves the keyring locked (39)"; f=1}
+                          $1=="auth" && /pam_unix/ && !f {print "password only (ok)"; f=1}' /etc/pam.d/ly 2>/dev/null)"
+row "fingerprint sudo" "$(grep -q '^auth.*pam_fprintd' /etc/pam.d/common-auth && echo on || echo 'off (sudo bash 39-fingerprint.sh)')"
+row "enrolled fingers" "$(fprintd-list "$USER" 2>/dev/null | sed -n 's/^ - #[0-9]*: //p' | paste -sd' ')"
+row "lock screen" "$(busctl --system --no-pager status org.gnome.DisplayManager >/dev/null 2>&1 && echo 'GDM running: yes' || echo 'none (gnome-shell only locks when GDM runs)')"
 
 echo "--- shell"
 row "TERM (this terminal)" "$TERM  (want xterm-256color here; linux = leaked from the text console)"

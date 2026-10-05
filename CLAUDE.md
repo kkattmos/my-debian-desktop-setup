@@ -21,7 +21,7 @@ https://claude.ai/artifact/F62ZrkQMFMyFxCmGKEMHXu (republish with the Artifact t
 
 ## Target machine
 - Laptop "420pc" (Dell Inspiron 14 5440): Intel Core 7 150U + NVIDIA GeForce MX570 A (not set up; runs on Intel), 32+ GB RAM, UEFI + Secure Boot, Realtek RTL8852BE Wi-Fi
-  (rtw89 driver, needs `firmware-realtek`), Intel SOF audio, 1 TB NVMe `nvme0n1`, screen 2240×1400 (16:10), battery ~42 Wh (80% health).
+  (rtw89 driver, needs `firmware-realtek`), Intel SOF audio, Goodix fingerprint reader `27c6:631c` (libfprint `goodixmoc`, in Debian 13), 1 TB NVMe `nvme0n1`, screen 2240×1400 (16:10), battery ~42 Wh (80% health).
 - User `kkattmos` (uid 1000). Chulalongkorn student: ChulaWiFi is WPA2-Enterprise PEAP/MSCHAPv2,
   domain match `wifi.it.chula.ac.th`, no CA cert (copied from the Ubuntu NetworkManager profile).
   eduroam: same credentials, identity `<ID>@eduroam.chula.ac.th`, anonymous `anonymous@eduroam.chula.ac.th`,
@@ -119,6 +119,7 @@ fstab uses `UUID=<btrfs fs uuid>`. Snapper snapshots only `/` (apt pre/post, kee
 | `36-terminal-look.sh` | **user** (sudo only for missing pkgs) | ptyxis/fastfetch/cava + kitty/imagemagick, Ptyxis profile via `dconf write` + read-back, `~/.config/xdg-terminals.list`, installs fastfetch/cava/kitty configs + zshrc (.bak if different), `nvim-notebook.desktop` as the .ipynb default; called by 30 |
 | `37-desktop-look.sh` | **user** (sudo only if no Papirus icons) | `dconf load` Blur my Shell + Tiling Shell layouts (verified key by key), interface keys, wallpaper, gtk.css, nvim colorscheme, Firefox profile files, ONLYOFFICE theme; called by 30. Needs a Firefox ESR profile (start Firefox once) |
 | `38-grub-theme.sh` | `sudo`, optional | Space Isolation GRUB theme v0.2.0 (1920x1080 release tarball, sha256-pinned) → `/boot/grub/themes/space-isolation`; sets GRUB_THEME/BACKGROUND/TERMINAL_OUTPUT/GFXMODE (by sourced value, so quoting differences don't count), update-grub, checks grub.cfg |
+| `39-fingerprint.sh <user>` | `sudo`, optional | fprintd + libpam-fprintd, makes `/etc/pam.d/ly` password-only (`.bak`, checked), enrolls `$FINGER` if none, `pam-auth-update --enable fprintd` (profile is `Default: no`), reads common-auth back |
 | `40-stm32cubeide.sh`, `41-packettracer.sh` | user | need the user's own downloads (st.com / NetAcad logins) |
 | `90-absorb-ubuntu.sh` | `sudo`, later | moves Debian onto p2 (btrfs device add/remove), deletes p3, grows p2; resumable |
 
@@ -141,6 +142,10 @@ never `overridden-settings`).
 - **`GRUB_DISABLE_OS_PROBER=false` is missing** from the laptop's `/etc/default/grub` (10-system.sh adds it;
   how it got lost is unknown, no backup), so Ubuntu has no GRUB entry. 32-check shows `GRUB os-prober off`.
 - 2026-10-05: ChulaWiFi fixed by hand + eduroam added (same values as 20-wifi.sh); both tested on campus.
+- 2026-10-05: fingerprint set up by hand (same result as 39: right index finger, fprintd in common-auth,
+  `/etc/pam.d/ly` password-only, original kept as `/etc/pam.d/ly.bak`); Ly login + keyring tested ok.
+  Open question: the user asked for auto-lock; switching Ly → GDM (the only way to get GNOME's lock screen)
+  was offered, not decided yet.
 - Not yet done: 20-wifi.sh (profiles exist, created by hand), 40/41 course tools via the scripts, 90 (Ubuntu still kept).
   guide.html has NOT been updated for 37 / Gooey yet (still says Tokyo Night, 88%).
 
@@ -160,6 +165,13 @@ never `overridden-settings`).
   match nothing use `shopt -s nullglob` + an array, not `ls | ...`.
 - Ly's upstream PAM file registers the desktop as `pam_systemd.so class=greeter` → wrong session
   class; 10-system.sh rewrites it to `class=user`.
+- **Fingerprint at the Ly login locks the keyring**: pam_fprintd succeeds, pam_unix is skipped, so
+  pam_gnome_keyring gets no password ("The login keyring did not get unlocked"). Ly also waits for the finger
+  after Enter. 10/39 replace Ly's `auth include login` with login's stack minus pam_fprintd.
+- **No GDM = no lock screen at all**: gnome-shell's `LoginManager.canLock()` asks `org.gnome.DisplayManager`
+  on the system bus, and `Main.screenShield` is only created when that answers. Super+L, `loginctl lock-session`
+  and the auto-lock settings do nothing; suspend wakes unlocked. swaylock etc. can't work (mutter has no
+  ext-session-lock). Read gnome-shell's JS with `gresource extract /usr/lib/gnome-shell/libshell-16.so /org/gnome/shell/...`.
 - **systemd-gpt-auto-generator activates any "Linux swap" GPT partition** (p6) with no fstab entry at all.
   Fix = mask the generator: `/etc/systemd/system-generators/systemd-gpt-auto-generator -> /dev/null`
   (no GRUB/cmdline change; everything else gpt-auto could mount is already in fstab). Never alter p6
