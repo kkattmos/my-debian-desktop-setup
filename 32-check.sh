@@ -19,6 +19,7 @@ row "ly PAM auth" "$(awk '$1=="auth" && $2=="include" {print "include " $3 " -> 
                           $1=="auth" && /pam_unix/ && !f {print "password only (ok)"; f=1}' /etc/pam.d/ly 2>/dev/null)"
 row "fingerprint sudo" "$(grep -q '^auth.*pam_fprintd' /etc/pam.d/common-auth && echo on || echo 'off (sudo bash 39-fingerprint.sh)')"
 row "enrolled fingers" "$(fprintd-list "$USER" 2>/dev/null | sed -n 's/^ - #[0-9]*: //p' | paste -sd' ')"
+row "bitwarden" "$(dpkg-query -W -f='${Version}' bitwarden 2>/dev/null || echo 'not installed (sudo bash 42-bitwarden.sh)')  polkit: $(pkaction --action-id com.bitwarden.Bitwarden.unlock >/dev/null 2>&1 && echo ok || echo 'no policy (42)')  firefox link: $([[ -f ~/.mozilla/native-messaging-hosts/com.8bit.bitwarden.json ]] && echo ok || echo 'off (Settings -> Allow browser integration)')"
 row "lock screen" "$(busctl --system --no-pager status org.gnome.DisplayManager >/dev/null 2>&1 && echo 'GDM running: yes' || echo 'none (gnome-shell only locks when GDM runs)')"
 
 echo "--- shell"

@@ -121,10 +121,12 @@ fstab uses `UUID=<btrfs fs uuid>`. Snapper snapshots only `/` (apt pre/post, kee
 | `38-grub-theme.sh` | `sudo`, optional | Space Isolation GRUB theme v0.2.0 (1920x1080 release tarball, sha256-pinned) → `/boot/grub/themes/space-isolation`; sets GRUB_THEME/BACKGROUND/TERMINAL_OUTPUT/GFXMODE (by sourced value, so quoting differences don't count), update-grub, checks grub.cfg |
 | `39-fingerprint.sh <user>` | `sudo`, optional | fprintd + libpam-fprintd, makes `/etc/pam.d/ly` password-only (`.bak`, checked), enrolls `$FINGER` if none, `pam-auth-update --enable fprintd` (profile is `Default: no`), reads common-auth back |
 | `40-stm32cubeide.sh`, `41-packettracer.sh` | user | need the user's own downloads (st.com / NetAcad logins) |
+| `42-bitwarden.sh` | `sudo`, optional | Bitwarden desktop official `.deb` from GitHub releases (version + sha256 pinned; skipped if the installed one is newer - it self-updates via electron-updater + pkexec) + `dotfiles/polkit/com.bitwarden.Bitwarden.policy` → `/usr/share/polkit-1/actions/`, checked with `pkaction` |
 | `90-absorb-ubuntu.sh` | `sudo`, later | moves Debian onto p2 (btrfs device add/remove), deletes p3, grows p2; resumable |
 
 `dotfiles/` mirrors the live files: `zshrc`, `fastfetch/`, `cava/`, `nvim/lua/plugins/` (colorscheme, notebook,
-web), `gnome-shell/extensions/`, `dconf/`, `gtk-4.0/`, `firefox/`, `onlyoffice/`, `systemd/`, `jupytext/`, `kitty/`, `applications/`.
+web), `gnome-shell/extensions/`, `dconf/`, `gtk-4.0/`, `firefox/`, `onlyoffice/`, `systemd/`, `jupytext/`, `kitty/`, `applications/`,
+`polkit/` (Bitwarden's unlock action, copied verbatim from the app's `app.asar`).
 When the user tweaks the look by hand, copy the live file back into `dotfiles/` (`dconf dump` for dconf dirs;
 drop internal keys like `rounded-blur-found`, and for Tiling Shell keep only `layouts-json`/`selected-layouts`,
 never `overridden-settings`).
@@ -144,6 +146,10 @@ never `overridden-settings`).
 - 2026-10-05: ChulaWiFi fixed by hand + eduroam added (same values as 20-wifi.sh); both tested on campus.
 - 2026-10-05: fingerprint set up by hand (same result as 39: right index finger, fprintd in common-auth,
   `/etc/pam.d/ly` password-only, original kept as `/etc/pam.d/ly.bak`); Ly login + keyring tested ok.
+- 2026-10-07: 42-bitwarden.sh run on the laptop (Bitwarden 2026.9.1 + polkit policy); `pkcheck --action-id
+  com.bitwarden.Bitwarden.unlock --process $$ --allow-user-interaction` → GNOME dialog → finger → rc 0.
+  The user has NOT logged in to Bitwarden or imported the Google passwords yet - don't import until asked.
+  Plan: Bitwarden replaces Google Password Manager on the laptop (Firefox extension) and iPhone (AutoFill).
   Open question: the user asked for auto-lock; switching Ly → GDM (the only way to get GNOME's lock screen)
   was offered, not decided yet.
 - Not yet done: 20-wifi.sh (profiles exist, created by hand), 40/41 course tools via the scripts, 90 (Ubuntu still kept).
@@ -168,6 +174,11 @@ never `overridden-settings`).
 - **Fingerprint at the Ly login locks the keyring**: pam_fprintd succeeds, pam_unix is skipped, so
   pam_gnome_keyring gets no password ("The login keyring did not get unlocked"). Ly also waits for the finger
   after Enter. 10/39 replace Ly's `auth include login` with login's stack minus pam_fprintd.
+- **Bitwarden on Linux** unlocks via polkit action `com.bitwarden.Bitwarden.unlock` (`auth_self` → PAM `polkit-1` →
+  common-auth → fprintd). The .deb doesn't ship the policy; the app's setup button writes it via pkexec and then runs
+  `chcon` (SELinux), which fails on Debian → "Failed to set up polkit policy". The snap can't reach polkit at all
+  (comment in the app's code, although Bitwarden's help page lists snap). Biometrics also need a working Secret
+  Service (gnome-keyring unlocked at login - another reason Ly stays password-only).
 - **No GDM = no lock screen at all**: gnome-shell's `LoginManager.canLock()` asks `org.gnome.DisplayManager`
   on the system bus, and `Main.screenShield` is only created when that answers. Super+L, `loginctl lock-session`
   and the auto-lock settings do nothing; suspend wakes unlocked. swaylock etc. can't work (mutter has no

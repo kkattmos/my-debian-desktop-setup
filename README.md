@@ -85,8 +85,8 @@ To save that last hour, remove `firefox-esr` from Blur my Shell → Applications
   proper user session (`class=user`). Ly logins always use the password, so the GNOME keyring unlocks.
   The trade-off: **no lock screen**, because gnome-shell only builds one when GDM is running (Super+L and the
   auto-lock settings do nothing).
-- **Fingerprint** (optional, [`39-fingerprint.sh`](39-fingerprint.sh)) for `sudo`, `su` and GNOME's password
-  pop-ups.
+- **Fingerprint** (optional, [`39-fingerprint.sh`](39-fingerprint.sh)) for `sudo`, `su`, GNOME's password
+  pop-ups and unlocking Bitwarden.
 - **[Tiling Shell](https://github.com/domferr/tilingshell):** five saved layouts, one per workspace. Hold
   `Ctrl` while dragging to snap a window into a tile; `Super+←/→` moves windows between tiles.
 - **4 fixed workspaces:** `Super+1…4` to switch, `Super+Shift+1…4` to move a window.
@@ -162,6 +162,7 @@ nvme0n1   p1  1 GB    EFI (shared with Ubuntu)
 | Sync & network | Tailscale; SeaDrive CLI as a systemd *user* service with lingering, so `~/SeaDrive` is mounted at boot before login |
 | Photos | PhotoPrism, native `.deb` with SQLite, off until `svc photoprism on` → http://localhost:2342 |
 | Course tools | STM32CubeIDE (Xwayland wrapper, ST-LINK udev rules, libncurses5 from Debian 12), Cisco Packet Tracer 9 |
+| Passwords | Bitwarden desktop (optional, [`42-bitwarden.sh`](42-bitwarden.sh)): unlocks with the fingerprint, and the Firefox extension unlocks through it |
 | Tools | btop, htop, pavucontrol, xclip, ripgrep, fd, lazygit |
 | Installed by hand (not scripted) | Claude desktop, Discord, Zoom, Postman (snap) |
 
@@ -279,6 +280,10 @@ bash ~/debian13-setup/41-packettracer.sh ~/Downloads/CiscoPacketTracer_901_Ubunt
 
 ### 6. Finishing touches by hand
 
+- **Bitwarden** (optional): `sudo bash ~/debian13-setup/42-bitwarden.sh`, then open Bitwarden and log in once
+  with the master password. In File → Settings, tick **Unlock with system authentication** and **Allow browser
+  integration**. Then install the Bitwarden extension in Firefox and turn on **Unlock with biometrics** in its
+  Account security settings (the desktop app must be running).
 - **ONLYOFFICE theme:** Settings → Interface theme → add theme → `Ctrl+L` →
   `~/.local/share/onlyoffice/Gooey.json` → pick **Gooey**. This is needed once; `37` keeps it updated afterwards.
 - **Firefox:** optional Kanagawa Wave theme from addons.mozilla.org. The Gooey CSS overrides its colours anyway.
@@ -316,6 +321,7 @@ execute bit. Every script is idempotent: it checks state first, keeps `.bak` cop
 | [`39-fingerprint.sh`](39-fingerprint.sh) `<user>` | `sudo`, optional | fprintd, enrolls a finger, fingerprint for `sudo`/`su`/polkit; Ly stays password-only |
 | [`40-stm32cubeide.sh`](40-stm32cubeide.sh) | user | STM32CubeIDE from ST's installer, Xwayland wrapper, udev rules |
 | [`41-packettracer.sh`](41-packettracer.sh) | user | Packet Tracer 9 from the Ubuntu `.deb` |
+| [`42-bitwarden.sh`](42-bitwarden.sh) | `sudo`, optional | Bitwarden desktop `.deb` (sha256-pinned, updates itself) + the polkit policy for fingerprint unlock |
 | [`90-absorb-ubuntu.sh`](90-absorb-ubuntu.sh) | `sudo`, later | Moves Debian onto Ubuntu's partition and grows it: one encrypted partition, resumable |
 
 ```
@@ -331,6 +337,7 @@ dotfiles/
 ├── gtk-4.0/gtk.css              Gooey for every libadwaita app
 ├── firefox/                     user.js + chrome/userChrome.css, userContent.css
 ├── onlyoffice/Gooey.json        ONLYOFFICE interface theme
+├── polkit/                      Bitwarden's unlock policy (42 installs it)
 └── systemd/                     seadrive.service, photoprism.service (user units)
 ```
 
@@ -362,6 +369,8 @@ Each of these broke something during setup and is now handled by the scripts:
 - Ly's PAM file registers the desktop as a greeter session. `10` rewrites it to `class=user`.
 - Logging in with a fingerprint gives the GNOME keyring no password, so it stays locked and asks again.
   Ly's PAM file therefore skips the fingerprint.
+- Bitwarden's own "set up system authentication" step runs `chcon` (SELinux) and fails on Debian.
+  `42` installs the same polkit policy file itself.
 - Without GDM, GNOME has no lock screen at all: gnome-shell checks for GDM over D-Bus before building one.
 - `set -euo pipefail` + a `grep` that matches nothing kills a script silently.
 - Setting `GTK_THEME` stops libadwaita from loading its own stylesheet, so apps lose switches and rounded corners.
