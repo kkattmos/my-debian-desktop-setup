@@ -111,7 +111,7 @@ fstab uses `UUID=<btrfs fs uuid>`. Snapper snapshots only `/` (apt pre/post, kee
 | `10-system.sh <user>` | `sudo`, twice | run 1: Btrfs subvolumes + compression + disable Ubuntu swap, reboot; run 2: everything else |
 | `20-wifi.sh` | user | ChulaWiFi + eduroam + home Wi-Fi via nmcli (system-owned secrets); no SSIDs in the file |
 | `30-user.sh` | **user, no sudo** | zsh, Nerd Font, Neovim/LazyVim, calls 35/31/36/37, Tailscale, SeaDrive (URL asked, no default), PhotoPrism |
-| `31-gnome-settings.sh` | **user, no sudo** | installs 3 e.g.o extensions (Tiling Shell, Blur my Shell, Switch Workspace) + 2 own ones from `dotfiles/gnome-shell/extensions`; GNOME settings as dconf system defaults |
+| `31-gnome-settings.sh` | **user, no sudo** | installs 3 e.g.o extensions (Tiling Shell, Blur my Shell **pinned v72** via `PINNED`, Switch Workspace) + 2 own ones from `dotfiles/gnome-shell/extensions`; GNOME settings as dconf system defaults |
 | `32-check.sh` | user | read-only status report - ask the user for its output first when debugging |
 | `33-clean-root-leftovers.sh` | `sudo` | one-off: removes what an accidental `sudo bash 30-user.sh` put in /root |
 | `34-no-ubuntu-swap.sh` | `sudo` | one-off: masks systemd-gpt-auto-generator (/dev/null symlink), swapoff p6; 10-system.sh now does this too |
@@ -152,6 +152,9 @@ never `overridden-settings`).
   Plan: Bitwarden replaces Google Password Manager on the laptop (Firefox extension) and iPhone (AutoFill).
   Open question: the user asked for auto-lock; switching Ly → GDM (the only way to get GNOME's lock screen)
   was offered, not decided yet.
+- 2026-10-08: slow logins traced to Blur my Shell v74; laptop rolled back to pinned v72 (same files as 31 installs).
+  A temporary tracer `login-trace.service` (user unit, `~/.local/bin/login-trace.sh`, logs in `~/login-trace/`) is
+  still enabled - not part of the repo; remove when no longer needed.
 - Not yet done: 20-wifi.sh (profiles exist, created by hand), 40/41 course tools via the scripts, 90 (Ubuntu still kept).
   guide.html has NOT been updated for 37 / Gooey yet (still says Tokyo Night, 88%).
 
@@ -227,6 +230,16 @@ never `overridden-settings`).
     the user's screenshots, not by assuming ("Do not guess" - the user's words).
   - ONLYOFFICE's start page reads a different set of theme variables than the editors.
   - Electron apps (Claude desktop, Discord) ignore GTK CSS and create opaque windows.
+- **Blur my Shell v74 stalls the login** (auto-updated from v72 on 2026-10-06 23:55; first slow login the next boot).
+  The shell shows the desktop only when its main loop is idle (`layout.js`: `GLib.idle_add(PRIORITY_LOW)` before the
+  startup animation); with v74 the loop spins (sysprof: `g_source_ref`/`clock_gettime`/`ppoll` + mozjs) for 10-60 s
+  after "extension is enabled". Without the extension or with v72: ~1-2 s. v74 enables overview/dock/panel blur
+  before startup-complete and adds the paint-signals repaint hack to the STATIC panel blur (exact culprit not
+  isolated). Fix: v72 from the GitHub release, metadata `version` 9999 - e.g.o `update-info` then returns `{}`
+  (GNOME applies both "upgrade" AND "downgrade" answers; checked 2026-10-08: 72 → "upgrade", 74 and 9999 → `{}`).
+  v74 copy kept at `~/.local/share/gnome-shell/blur-my-shell@aunetx.v74.bak`. Login timing: `journalctl --user -b`
+  lines "extension is enabled" → "GNOME Shell started" (normal ~1-2 s). Debian's binaries have no frame pointers,
+  so sysprof stacks are shallow; record a login from a TTY with `sudo sysprof-cli` (needs auth, file is root 0640).
 - GRUB theme: `GRUB_THEME` must point at a `theme.txt` that exists - Debian's `00_header` silently drops the theme
   otherwise (no error; look for `Found theme:` in the update-grub output). The space-isolation repo keeps `theme.txt`
   in per-resolution subfolders, so cloning the repo into `/boot/grub/themes` doesn't work. After a menu entry is

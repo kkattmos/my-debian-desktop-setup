@@ -16,16 +16,39 @@ EGO_UUIDS=(tilingshell@ferrarodomenico.com blur-my-shell@aunetx switchWorkSpace@
 OWN_UUIDS=(gooey-dock@kkattmos workspace-label@kkattmos)   # gooey-dock = "Gooey Shell" (renaming the uuid breaks a running shell)
 ALL=$(printf "'%s', " "${EGO_UUIDS[@]}" "${OWN_UUIDS[@]}"); ALL="[${ALL%, }]"
 
+# Pinned versions: "<zip url> <sha256>". Blur my Shell v74 (auto-updated 2026-10-06) keeps the shell's main
+# loop busy at startup, so the desktop appears 10-60 s after login; v72 doesn't. The pin sets the installed
+# metadata version to 9999: e.g.o then answers neither "upgrade" nor "downgrade", so GNOME never replaces it.
+declare -A PINNED=(
+  [blur-my-shell@aunetx]="https://github.com/aunetx/blur-my-shell/releases/download/v72/blur-my-shell@aunetx.shell-extension.zip f80657cb4f21a18b272eecaea658554bc89c156ed5af0ed61f5ae8390ffa9d96"
+)
+
 for UUID in "${EGO_UUIDS[@]}"; do
-  echo "== $UUID (extensions.gnome.org)"
-  URL=$(curl -fsS "https://extensions.gnome.org/extension-info/?uuid=$UUID&shell_version=48" \
-    | python3 -c 'import json,sys;print(json.load(sys.stdin)["download_url"])')
-  curl -fsSL "https://extensions.gnome.org$URL" -o "$TMP/ext.zip"
+  if [[ -n ${PINNED[$UUID]:-} ]]; then
+    read -r URL SHA <<<"${PINNED[$UUID]}"
+    echo "== $UUID (pinned: $URL)"
+    curl -fsSL "$URL" -o "$TMP/ext.zip"
+    echo "$SHA  $TMP/ext.zip" | sha256sum -c --quiet || { echo "!! sha256 mismatch for $UUID"; exit 1; }
+  else
+    echo "== $UUID (extensions.gnome.org)"
+    URL=$(curl -fsS "https://extensions.gnome.org/extension-info/?uuid=$UUID&shell_version=48" \
+      | python3 -c 'import json,sys;print(json.load(sys.stdin)["download_url"])')
+    curl -fsSL "https://extensions.gnome.org$URL" -o "$TMP/ext.zip"
+  fi
   DEST=$EXT/$UUID
   rm -rf "$DEST"; mkdir -p "$DEST"
   unzip -q "$TMP/ext.zip" -d "$DEST"
   [[ -f $DEST/metadata.json ]] || { echo "!! extension did not unpack into $DEST"; exit 1; }
   if [[ -d $DEST/schemas && ! -f $DEST/schemas/gschemas.compiled ]]; then glib-compile-schemas "$DEST/schemas"; fi
+  if [[ -n ${PINNED[$UUID]:-} ]]; then
+    python3 - "$DEST/metadata.json" <<'EOF'
+import json, sys
+p = sys.argv[1]; m = json.load(open(p))
+m["pinned"] = f"v{m['version']} pinned by debian13-setup (31-gnome-settings.sh)"
+m["version"] = 9999
+json.dump(m, open(p, "w"), indent=2); open(p, "a").write("\n")
+EOF
+  fi
   python3 -c 'import json,sys; m=json.load(open(sys.argv[1])); print("  installed", m["uuid"], "for GNOME", ", ".join(m["shell-version"]))' "$DEST/metadata.json"
 done
 for UUID in "${OWN_UUIDS[@]}"; do

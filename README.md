@@ -77,6 +77,10 @@ wallpaper-only blur:
 
 To save that last hour, remove `firefox-esr` from Blur my Shell → Applications.
 
+Blur my Shell is pinned to **v72**: v74 (Oct 2026) keeps GNOME Shell busy at startup, so the desktop
+appeared 10-60 s after login instead of ~2 s. `31-gnome-settings.sh` installs v72 from the GitHub release
+(sha256-checked) and sets its metadata version to 9999 so GNOME's automatic extension updates leave it alone.
+
 ### Desktop and tiling
 
 - **Minimal GNOME 48:** only the pieces that are used (shell, Settings, Files, Ptyxis, Loupe, Papers,
@@ -310,7 +314,7 @@ execute bit. Every script is idempotent: it checks state first, keeps `.bak` cop
 | [`10-system.sh`](10-system.sh) `<user>` | `sudo`, twice | Run 1: Btrfs subvolumes + compression, Ubuntu swap off. Run 2: APT, repos, packages, zram, Snapper, Ly, Docker off, PhotoPrism, NetworkManager |
 | [`20-wifi.sh`](20-wifi.sh) | user | University PEAP/MSCHAPv2 Wi-Fi + eduroam (old-TLS server: TLS 1.0/1.1 allowed per profile) + home WPA2 networks (system-owned secrets, up before login) |
 | [`30-user.sh`](30-user.sh) | user | zsh, fonts, Neovim/LazyVim, notebooks, calls 31/35/36/37, Tailscale, SeaDrive, PhotoPrism |
-| [`31-gnome-settings.sh`](31-gnome-settings.sh) | user | Installs the 5 shell extensions; GNOME settings as dconf system defaults, read back and verified |
+| [`31-gnome-settings.sh`](31-gnome-settings.sh) | user | Installs the 5 shell extensions (Blur my Shell pinned to v72, see below); GNOME settings as dconf system defaults, read back and verified |
 | [`32-check.sh`](32-check.sh) | user | Read-only status report (session, fingerprint, shell, extensions, look, GRUB, services, swap) |
 | [`33-clean-root-leftovers.sh`](33-clean-root-leftovers.sh) | `sudo` | One-off: undoes an accidental `sudo bash 30-user.sh` |
 | [`34-no-ubuntu-swap.sh`](34-no-ubuntu-swap.sh) | `sudo` | One-off: masks `systemd-gpt-auto-generator` so Ubuntu's swap stays off (10 now does this) |
