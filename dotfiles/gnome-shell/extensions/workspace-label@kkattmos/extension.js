@@ -32,8 +32,13 @@ class WorkspaceLabel extends PanelMenu.Button {
             [this._settings, this._settings.connect(`changed::${NAMES_KEY}`, () => this._sync())],
         ];
 
+        // PopupMenu.open() does nothing while the menu is empty, so the menu is
+        // built up front and rebuilt whenever it is closed (not while it is open).
+        this._entry = null;
         this.menu.connect('open-state-changed', (_menu, open) => {
             if (open)
+                this._entry?.grab_key_focus();
+            else
                 this._buildMenu();
         });
 
@@ -51,6 +56,8 @@ class WorkspaceLabel extends PanelMenu.Button {
     _sync() {
         const active = global.workspace_manager.get_active_workspace_index();
         this._label.text = this._nameFor(active);
+        if (!this.menu.isOpen)
+            this._buildMenu();
     }
 
     _buildMenu() {
@@ -80,10 +87,12 @@ class WorkspaceLabel extends PanelMenu.Button {
             x_expand: true,
         });
         entry.clutter_text.connect('activate', () => {
-            this._rename(active, entry.text);
+            const text = entry.text;
             this.menu.close();
+            this._rename(active, text);
         });
         entryItem.add_child(entry);
+        this._entry = entry;
         this.menu.addMenuItem(entryItem);
     }
 
@@ -103,6 +112,7 @@ class WorkspaceLabel extends PanelMenu.Button {
             obj.disconnect(id);
         this._handlers = [];
         this._settings = null;
+        this._entry = null;
         super.destroy();
     }
 });
