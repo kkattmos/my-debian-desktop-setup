@@ -117,10 +117,12 @@ appeared 10-60 s after login instead of ~2 s. `31-gnome-settings.sh` installs v7
 ### Neovim
 
 - **Latest upstream Neovim** (Debian's 0.10 is too old for LazyVim), checksum-verified, in `~/.local`.
-- **LazyVim** with the Python, TypeScript/React, Tailwind, JSON, Markdown, Docker, C/C++ (clangd), Prettier and ESLint extras.
-  Mason installs pyright, ruff, vtsls, eslint, prettier, tailwind, json, emmet and clangd.
-- **C/C++ build & run**: `F5` or `Space c b` compiles the current file (`g++ -std=c++20 -Wall -Wextra -g`, `gcc` for `.c`)
+- **LazyVim** with the Python, TypeScript/React, Tailwind, JSON, Markdown, Docker, C/C++ (clangd), debugger (nvim-dap), Prettier and ESLint extras.
+  Mason installs pyright, ruff, vtsls, eslint, prettier, tailwind, json, emmet, clangd and codelldb.
+- **C/C++ build & run**: `F5` or `Space c b` compiles the current file (`g++ -std=c++20 -Wall -Wextra -g -O0`, `gcc` for `.c`)
   and runs it in a floating terminal, so `cin` input works.
+- **C/C++ debugging**: `Space d b` sets a breakpoint, `Space d c` → "Build & debug current file" compiles and starts
+  codelldb; dap-ui shows variables, call stack and a console where the program reads `cin` and prints `cout`.
 - **Jupyter notebooks in Neovim, laid out like Colab:** opening `x.ipynb` shows rendered Markdown text cells
   (headings, `$math$`) and each code cell as a shaded box
   ([jupytext.nvim](https://github.com/GCBallesteros/jupytext.nvim) in Markdown mode +

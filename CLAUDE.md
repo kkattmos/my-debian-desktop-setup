@@ -52,8 +52,10 @@ fstab uses `UUID=<btrfs fs uuid>`. Snapper snapshots only `/` (apt pre/post, kee
 - Docker and PhotoPrism are installed but OFF at boot; toggled with the `svc` zsh function.
 - PhotoPrism: native `.deb` (not Docker), SQLite, user service.
 - SeaDrive: **CLI** AppImage as a systemd **user** service + `loginctl enable-linger` (starts at boot).
-- Neovim: upstream release tarball (Debian's 0.10 is too old) + LazyVim (+ lang.clangd extra; `cpp.lua` maps `F5`/`<leader>cb`
-  = compile + run in a Snacks terminal - `<leader>cr` is LSP rename, keep it); `.ipynb` via
+- Neovim: upstream release tarball (Debian's 0.10 is too old) + LazyVim (+ lang.clangd + dap.core extras; `cpp.lua` maps `F5`/`<leader>cb`
+  = compile + run in a Snacks terminal - `<leader>cr` is LSP rename, keep it; its nvim-dap opts replace the clangd extra's
+  "Launch file" with "Build & debug current file" (`terminal = "integrated"` so cin works in the dap-ui console;
+  the trailing `Error("EOF while parsing")` there is codelldb-launch, harmless)); `.ipynb` via
   jupytext.nvim + molten-nvim (python venv `~/.local/share/nvim-py`, also the `python3` kernel, with
   numpy/scipy/matplotlib/pandas/sympy). Colab-like layout (2026-10-03): jupytext **Markdown** style (not `# %%`),
   render-markdown draws the cells, otter.nvim gives pyright in code blocks, kernel auto-starts on open,

@@ -81,6 +81,7 @@ if [[ ! -d ~/.config/nvim ]]; then
     { import = "lazyvim.plugins.extras.lang.markdown" },\
     { import = "lazyvim.plugins.extras.lang.docker" },\
     { import = "lazyvim.plugins.extras.lang.clangd" },\
+    { import = "lazyvim.plugins.extras.dap.core" },\
     { import = "lazyvim.plugins.extras.formatting.prettier" },\
     { import = "lazyvim.plugins.extras.linting.eslint" },' ~/.config/nvim/lua/config/lazy.lua
   cp "$DOT"/nvim/lua/plugins/*.lua ~/.config/nvim/lua/plugins/
