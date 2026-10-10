@@ -37,6 +37,20 @@ return {
     },
   },
   {
+    -- LazyVim's dap.core closes dap-ui the moment the program exits, which hides the console and with it
+    -- the program's output. Keep the auto-open, drop the auto-close (<leader>du closes it).
+    "rcarriga/nvim-dap-ui",
+    config = function(_, opts)
+      local dap, dapui = require("dap"), require("dapui")
+      dapui.setup(opts)
+      dap.listeners.after.event_initialized["dapui_config"] = function()
+        dapui.open({})
+      end
+      dap.listeners.before.event_terminated["dapui_config"] = nil
+      dap.listeners.before.event_exited["dapui_config"] = nil
+    end,
+  },
+  {
     "mfussenegger/nvim-dap",
     -- runs after the clangd extra's opts, so these configurations replace its "Launch file" (asks for a path)
     opts = function()

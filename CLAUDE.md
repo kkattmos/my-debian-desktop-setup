@@ -55,7 +55,8 @@ fstab uses `UUID=<btrfs fs uuid>`. Snapper snapshots only `/` (apt pre/post, kee
 - Neovim: upstream release tarball (Debian's 0.10 is too old) + LazyVim (+ lang.clangd + dap.core extras; `cpp.lua` maps `F5`/`<leader>cb`
   = compile + run in a Snacks terminal - `<leader>cr` is LSP rename, keep it; its nvim-dap opts replace the clangd extra's
   "Launch file" with "Build & debug current file" (`terminal = "integrated"` so cin works in the dap-ui console;
-  the trailing `Error("EOF while parsing")` there is codelldb-launch, harmless)); `.ipynb` via
+  the trailing `Error("EOF while parsing")` there is codelldb-launch, harmless; dap-ui is NOT auto-closed on exit -
+  LazyVim's auto-close hid the program output)); `.ipynb` via
   jupytext.nvim + molten-nvim (python venv `~/.local/share/nvim-py`, also the `python3` kernel, with
   numpy/scipy/matplotlib/pandas/sympy). Colab-like layout (2026-10-03): jupytext **Markdown** style (not `# %%`),
   render-markdown draws the cells, otter.nvim gives pyright in code blocks, kernel auto-starts on open,
