@@ -52,7 +52,8 @@ fstab uses `UUID=<btrfs fs uuid>`. Snapper snapshots only `/` (apt pre/post, kee
 - Docker and PhotoPrism are installed but OFF at boot; toggled with the `svc` zsh function.
 - PhotoPrism: native `.deb` (not Docker), SQLite, user service.
 - SeaDrive: **CLI** AppImage as a systemd **user** service + `loginctl enable-linger` (starts at boot).
-- Neovim: upstream release tarball (Debian's 0.10 is too old) + LazyVim; `.ipynb` via
+- Neovim: upstream release tarball (Debian's 0.10 is too old) + LazyVim (+ lang.clangd extra; `cpp.lua` maps `F5`/`<leader>cb`
+  = compile + run in a Snacks terminal - `<leader>cr` is LSP rename, keep it); `.ipynb` via
   jupytext.nvim + molten-nvim (python venv `~/.local/share/nvim-py`, also the `python3` kernel, with
   numpy/scipy/matplotlib/pandas/sympy). Colab-like layout (2026-10-03): jupytext **Markdown** style (not `# %%`),
   render-markdown draws the cells, otter.nvim gives pyright in code blocks, kernel auto-starts on open,
@@ -124,7 +125,7 @@ fstab uses `UUID=<btrfs fs uuid>`. Snapper snapshots only `/` (apt pre/post, kee
 | `42-bitwarden.sh` | `sudo`, optional | Bitwarden desktop official `.deb` from GitHub releases (version + sha256 pinned; skipped if the installed one is newer - it self-updates via electron-updater + pkexec) + `dotfiles/polkit/com.bitwarden.Bitwarden.policy` → `/usr/share/polkit-1/actions/`, checked with `pkaction` |
 | `90-absorb-ubuntu.sh` | `sudo`, later | moves Debian onto p2 (btrfs device add/remove), deletes p3, grows p2; resumable |
 
-`dotfiles/` mirrors the live files: `zshrc`, `fastfetch/`, `cava/`, `nvim/lua/plugins/` (colorscheme, notebook,
+`dotfiles/` mirrors the live files: `zshrc`, `fastfetch/`, `cava/`, `nvim/lua/plugins/` (colorscheme, notebook, cpp,
 web), `gnome-shell/extensions/`, `dconf/`, `gtk-4.0/`, `firefox/`, `onlyoffice/`, `systemd/`, `jupytext/`, `kitty/`, `applications/`,
 `polkit/` (Bitwarden's unlock action, copied verbatim from the app's `app.asar`).
 When the user tweaks the look by hand, copy the live file back into `dotfiles/` (`dconf dump` for dconf dirs;

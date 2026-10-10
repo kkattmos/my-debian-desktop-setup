@@ -29,7 +29,7 @@ so the whole laptop can be rebuilt from the official Debian ISO in an evening.
 | **Tiling** | Tiling Shell with custom layouts, 4 fixed workspaces on `Super+1…4` |
 | **Look** | "Gooey" everywhere: one navy palette + live blur, from the terminal to the top bar, dock, menus, GNOME apps, Firefox, ONLYOFFICE and Neovim |
 | **Terminal** | Ptyxis + zsh + Powerlevel10k + JetBrainsMono Nerd Font, fastfetch on every new tab, cava audio bars |
-| **Editor** | Latest Neovim + LazyVim; Python, TS/React, Tailwind; Jupyter notebooks inside Neovim |
+| **Editor** | Latest Neovim + LazyVim; Python, TS/React, Tailwind, C/C++; Jupyter notebooks inside Neovim |
 | **Disk** | LUKS2 full-disk encryption → Btrfs (zstd), 6 subvolumes, Snapper snapshots on every `apt` run, zram swap |
 | **Services** | Tailscale, SeaDrive (mounted at boot), Docker and PhotoPrism installed but off until you ask |
 
@@ -117,8 +117,10 @@ appeared 10-60 s after login instead of ~2 s. `31-gnome-settings.sh` installs v7
 ### Neovim
 
 - **Latest upstream Neovim** (Debian's 0.10 is too old for LazyVim), checksum-verified, in `~/.local`.
-- **LazyVim** with the Python, TypeScript/React, Tailwind, JSON, Markdown, Docker, Prettier and ESLint extras.
-  Mason installs pyright, ruff, vtsls, eslint, prettier, tailwind, json and emmet.
+- **LazyVim** with the Python, TypeScript/React, Tailwind, JSON, Markdown, Docker, C/C++ (clangd), Prettier and ESLint extras.
+  Mason installs pyright, ruff, vtsls, eslint, prettier, tailwind, json, emmet and clangd.
+- **C/C++ build & run**: `F5` or `Space c b` compiles the current file (`g++ -std=c++20 -Wall -Wextra -g`, `gcc` for `.c`)
+  and runs it in a floating terminal, so `cin` input works.
 - **Jupyter notebooks in Neovim, laid out like Colab:** opening `x.ipynb` shows rendered Markdown text cells
   (headings, `$math$`) and each code cell as a shaded box
   ([jupytext.nvim](https://github.com/GCBallesteros/jupytext.nvim) in Markdown mode +
@@ -332,7 +334,7 @@ execute bit. Every script is idempotent: it checks state first, keeps `.bak` cop
 dotfiles/
 ├── zshrc                        ~/.zshrc
 ├── fastfetch/ cava/             ~/.config/...
-├── nvim/lua/plugins/            colorscheme (Gooey), notebook (jupytext + molten + otter), web (Mason list)
+├── nvim/lua/plugins/            colorscheme (Gooey), notebook (jupytext + molten + otter), web (Mason list), cpp (F5 build & run)
 ├── jupytext/jupytext.toml       ~/.config/jupytext (hides the notebook header in Neovim)
 ├── kitty/kitty.conf             kitty in the Gooey look, the terminal for notebooks (inline plots)
 ├── applications/                nvim-notebook.desktop: .ipynb files open in Neovim in kitty
