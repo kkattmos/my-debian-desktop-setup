@@ -85,6 +85,7 @@ if [[ ! -d ~/.config/nvim ]]; then
     { import = "lazyvim.plugins.extras.formatting.prettier" },\
     { import = "lazyvim.plugins.extras.linting.eslint" },' ~/.config/nvim/lua/config/lazy.lua
   cp "$DOT"/nvim/lua/plugins/*.lua ~/.config/nvim/lua/plugins/
+  cp "$DOT"/nvim/.markdownlint-cli2.yaml ~/.config/nvim/ # base rules, passed by markdown.lua
   printf '\nvim.g.python3_host_prog = vim.fn.expand("~/.local/share/nvim-py/bin/python")\n' >> ~/.config/nvim/lua/config/options.lua
 fi
 nvim --headless "+Lazy! sync" +qa || true

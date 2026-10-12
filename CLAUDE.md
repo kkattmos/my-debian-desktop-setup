@@ -56,7 +56,9 @@ fstab uses `UUID=<btrfs fs uuid>`. Snapper snapshots only `/` (apt pre/post, kee
   = compile + run in a Snacks terminal - `<leader>cr` is LSP rename, keep it; its nvim-dap opts replace the clangd extra's
   "Launch file" with "Build & debug current file" (`terminal = "integrated"` so cin works in the dap-ui console;
   the trailing `Error("EOF while parsing")` there is codelldb-launch, harmless; dap-ui is NOT auto-closed on exit -
-  LazyVim's auto-close hid the program output)); `.ipynb` via
+  LazyVim's auto-close hid the program output)); `markdown.lua` (2026-10-12): in `.md` files diagnostics are
+  signs only (inline virtual text broke render-markdown's tables; `.ipynb` keeps it), markdownlint gets
+  `--config ~/.config/nvim/.markdownlint-cli2.yaml` (MD013 line length + MD060 table spacing off); `.ipynb` via
   jupytext.nvim + molten-nvim (python venv `~/.local/share/nvim-py`, also the `python3` kernel, with
   numpy/scipy/matplotlib/pandas/sympy). Colab-like layout (2026-10-03): jupytext **Markdown** style (not `# %%`),
   render-markdown draws the cells, otter.nvim gives pyright in code blocks, kernel auto-starts on open,
@@ -129,7 +131,7 @@ fstab uses `UUID=<btrfs fs uuid>`. Snapper snapshots only `/` (apt pre/post, kee
 | `90-absorb-ubuntu.sh` | `sudo`, later | moves Debian onto p2 (btrfs device add/remove), deletes p3, grows p2; resumable |
 
 `dotfiles/` mirrors the live files: `zshrc`, `fastfetch/`, `cava/`, `nvim/lua/plugins/` (colorscheme, notebook, cpp,
-web), `gnome-shell/extensions/`, `dconf/`, `gtk-4.0/`, `firefox/`, `onlyoffice/`, `systemd/`, `jupytext/`, `kitty/`, `applications/`,
+web, markdown) + `nvim/.markdownlint-cli2.yaml`, `gnome-shell/extensions/`, `dconf/`, `gtk-4.0/`, `firefox/`, `onlyoffice/`, `systemd/`, `jupytext/`, `kitty/`, `applications/`,
 `polkit/` (Bitwarden's unlock action, copied verbatim from the app's `app.asar`).
 When the user tweaks the look by hand, copy the live file back into `dotfiles/` (`dconf dump` for dconf dirs;
 drop internal keys like `rounded-blur-found`, and for Tiling Shell keep only `layouts-json`/`selected-layouts`,

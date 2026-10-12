@@ -336,7 +336,8 @@ execute bit. Every script is idempotent: it checks state first, keeps `.bak` cop
 dotfiles/
 ├── zshrc                        ~/.zshrc
 ├── fastfetch/ cava/             ~/.config/...
-├── nvim/lua/plugins/            colorscheme (Gooey), notebook (jupytext + molten + otter), web (Mason list), cpp (F5 build & run)
+├── nvim/lua/plugins/            colorscheme (Gooey), notebook (jupytext + molten + otter), web (Mason list), cpp (F5 build & run),
+│                                markdown (lint messages as signs only, no line-length rule)
 ├── jupytext/jupytext.toml       ~/.config/jupytext (hides the notebook header in Neovim)
 ├── kitty/kitty.conf             kitty in the Gooey look, the terminal for notebooks (inline plots)
 ├── applications/                nvim-notebook.desktop: .ipynb files open in Neovim in kitty

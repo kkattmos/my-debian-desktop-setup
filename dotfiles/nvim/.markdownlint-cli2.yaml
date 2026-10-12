@@ -1,0 +1,5 @@
+# Base markdownlint rules for Neovim (lua/plugins/markdown.lua passes this file with --config).
+# A .markdownlint* file inside a project still overrides it.
+config:
+  MD013: false # line length: prose is one line per paragraph, Neovim wraps it
+  MD060: false # table pipe spacing: purely cosmetic, render-markdown draws the tables
