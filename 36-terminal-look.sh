@@ -16,10 +16,10 @@ FONT='JetBrainsMono Nerd Font 12'
 
 echo "== Packages"
 missing=()
-for p in ptyxis fastfetch cava kitty imagemagick; do
+for p in ptyxis fastfetch cava kitty imagemagick cage; do
   dpkg-query -W -f='${Status}' "$p" 2>/dev/null | grep -q 'ok installed' || missing+=("$p")
 done
-if (( ${#missing[@]} )); then sudo apt-get install -y "${missing[@]}"; else echo "  ptyxis fastfetch cava kitty imagemagick already installed"; fi
+if (( ${#missing[@]} )); then sudo apt-get install -y "${missing[@]}"; else echo "  ptyxis fastfetch cava kitty imagemagick cage already installed"; fi
 
 echo "== Ptyxis settings"
 # dconf write needs the user session bus (unlike gsettings it fails loudly without one)

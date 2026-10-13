@@ -6,6 +6,15 @@
 # passes it on. In a graphical terminal that means 8 colours + no Unicode for p10k, nvim, less ...
 [[ $TERM == linux && $TTY == /dev/pts/* && -n $WAYLAND_DISPLAY$DISPLAY ]] && export TERM=xterm-256color
 
+# Text console (Ctrl+Alt+F3 ...): its font has no Nerd Font icons and 16 colours, so start kitty full-screen
+# through the cage compositor instead (sudo apt install cage). Quit kitty (Ctrl+D) for the plain console,
+# `exit` there to log out. Only on a tty login - never in GNOME, over SSH or inside kitty itself.
+if [[ -o login && $TTY == /dev/tty[0-9]* && $XDG_SESSION_TYPE == tty && -z $WAYLAND_DISPLAY$DISPLAY$SSH_CONNECTION ]] \
+    && (( $+commands[cage] && $+commands[kitty] )); then
+  cage -- kitty -o background_opacity=1 2>"${XDG_CACHE_HOME:-$HOME/.cache}/cage.log" \
+    || echo "cage/kitty failed - see ~/.cache/cage.log; staying in the plain console"
+fi
+
 # System info at the top of each new Ptyxis tab (not in nested shells, nvim :terminal, other terminals).
 # Must stay above the instant prompt. 0 = off; run `fastfetch` by hand any time. Look: ~/.config/fastfetch
 FASTFETCH_ON_START=1

@@ -134,6 +134,9 @@ appeared 10-60 s after login instead of ~2 s. `31-gnome-settings.sh` installs v7
   under the cell ([image.nvim](https://github.com/3rd/image.nvim)); Ptyxis can't draw images, so there plots open
   in the image viewer. The kernel venv has numpy, scipy, matplotlib, pandas and sympy.
 - **Gooey colour scheme** with a transparent background, and `:terminal` uses the same ANSI colours as Ptyxis.
+- **Text consoles** (`Ctrl+Alt+F3`…): logging in starts kitty full-screen through the
+  [cage](https://github.com/cage-kiosk/cage) compositor, so Nerd Font icons and true colour work without GNOME
+  (quit kitty for the plain console). In the plain console LazyVim swaps its icons for ASCII letters (`tty.lua`).
 - A printable two-page cheat sheet: [`neovim-cheatsheet.pdf`](neovim-cheatsheet.pdf).
 
 ### Filesystem and boot
@@ -365,6 +368,7 @@ dotfiles/
 | Update with snapshots | `update`, then `snaps` to list them |
 | Docker / PhotoPrism on demand | `svc docker on`, `svc photoprism on` |
 | Notebook in Neovim | `nb x.ipynb` (kitty, inline plots), `Alt+Enter` run cell and go to the next, `\ra` run all |
+| Text console with icons | `Ctrl+Alt+F3`, log in: kitty opens full-screen; `Ctrl+D` for the plain console, `Ctrl+Alt+F2` back to GNOME |
 
 ---
 

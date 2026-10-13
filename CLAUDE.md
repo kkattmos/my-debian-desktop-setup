@@ -66,6 +66,11 @@ fstab uses `UUID=<btrfs fs uuid>`. Snapper snapshots only `/` (apt pre/post, kee
   Inline plots (2026-10-03): notebooks run in **kitty** (`nb` zsh function, `nvim-notebook.desktop` = default for
   `application/x-ipynb+json`), image.nvim kitty backend + ImageMagick (`magick_cli`); only when `$KITTY_WINDOW_ID`
   is set, else plots pop up in Loupe. Ptyxis stays the default terminal. kitty is on the blur whitelist.
+  Text consoles (2026-10-13): zshrc starts `cage -- kitty -o background_opacity=1` on a tty login
+  (`-o login`, `$TTY == /dev/tty[0-9]*`, `XDG_SESSION_TYPE == tty`; not run in a loop, Ctrl+D = plain console;
+  errors in `~/.cache/cage.log`); cage is in 36's package list. `tty.lua`: when `TERM=linux`, mini.icons ascii +
+  every LazyVim/snacks-picker icon stripped to ASCII, plain lualine/bufferline/gitsigns/which-key/noice symbols.
+  Console font (by hand, not scripted): `/etc/default/console-setup` TerminusBold 14x28.
 - Shell: plain zsh + **Powerlevel10k** (git clone to `~/.local/share/powerlevel10k`, no oh-my-zsh; user wanted the
   `p10k configure` wizard, 2026-09-28 - replaced Starship) + Debian-packaged plugins, one `~/.zshrc`.
   `~/.p10k.zsh` holds the wizard's answers and is never overwritten.
@@ -124,7 +129,7 @@ fstab uses `UUID=<btrfs fs uuid>`. Snapper snapshots only `/` (apt pre/post, kee
 | `33-clean-root-leftovers.sh` | `sudo` | one-off: removes what an accidental `sudo bash 30-user.sh` put in /root |
 | `34-no-ubuntu-swap.sh` | `sudo` | one-off: masks systemd-gpt-auto-generator (/dev/null symlink), swapoff p6; 10-system.sh now does this too |
 | `35-thai-font.sh` | **user, no sudo** | Sarabun TTFs (Google Fonts) + `~/.config/fontconfig/conf.d/60-thai-sarabun.conf`; called by 30 |
-| `36-terminal-look.sh` | **user** (sudo only for missing pkgs) | ptyxis/fastfetch/cava + kitty/imagemagick, Ptyxis profile via `dconf write` + read-back, `~/.config/xdg-terminals.list`, installs fastfetch/cava/kitty configs + zshrc (.bak if different), `nvim-notebook.desktop` as the .ipynb default; called by 30 |
+| `36-terminal-look.sh` | **user** (sudo only for missing pkgs) | ptyxis/fastfetch/cava + kitty/imagemagick/cage, Ptyxis profile via `dconf write` + read-back, `~/.config/xdg-terminals.list`, installs fastfetch/cava/kitty configs + zshrc (.bak if different), `nvim-notebook.desktop` as the .ipynb default; called by 30 |
 | `37-desktop-look.sh` | **user** (sudo only if no Papirus icons) | `dconf load` Blur my Shell + Tiling Shell layouts (verified key by key), interface keys, wallpaper, gtk.css, nvim colorscheme, Firefox profile files, ONLYOFFICE theme; called by 30. Needs a Firefox ESR profile (start Firefox once) |
 | `38-grub-theme.sh` | `sudo`, optional | Space Isolation GRUB theme v0.2.0 (1920x1080 + 2560x1440 release tarballs, sha256-pinned; bigger-font theme.txt from dotfiles/grub) → `/boot/grub/themes/space-isolation`; sets GRUB_THEME/BACKGROUND/TERMINAL_OUTPUT/GFXMODE (by sourced value, so quoting differences don't count), update-grub, checks grub.cfg |
 | `39-fingerprint.sh <user>` | `sudo`, optional | fprintd + libpam-fprintd, makes `/etc/pam.d/ly` password-only (`.bak`, checked), enrolls `$FINGER` if none, `pam-auth-update --enable fprintd` (profile is `Default: no`), reads common-auth back |
@@ -133,7 +138,7 @@ fstab uses `UUID=<btrfs fs uuid>`. Snapper snapshots only `/` (apt pre/post, kee
 | `90-absorb-ubuntu.sh` | `sudo`, later | moves Debian onto p2 (btrfs device add/remove), deletes p3, grows p2; resumable |
 
 `dotfiles/` mirrors the live files: `zshrc`, `fastfetch/`, `cava/`, `nvim/lua/plugins/` (colorscheme, notebook, cpp,
-web, markdown) + `nvim/.markdownlint-cli2.yaml`, `gnome-shell/extensions/`, `dconf/`, `gtk-4.0/`, `firefox/`, `onlyoffice/`, `systemd/`, `jupytext/`, `kitty/`, `applications/`,
+web, markdown, tty) + `nvim/.markdownlint-cli2.yaml`, `gnome-shell/extensions/`, `dconf/`, `gtk-4.0/`, `firefox/`, `onlyoffice/`, `systemd/`, `jupytext/`, `kitty/`, `applications/`,
 `grub/`, `polkit/` (Bitwarden's unlock action, copied verbatim from the app's `app.asar`).
 When the user tweaks the look by hand, copy the live file back into `dotfiles/` (`dconf dump` for dconf dirs;
 drop internal keys like `rounded-blur-found`, and for Tiling Shell keep only `layouts-json`/`selected-layouts`,
@@ -253,6 +258,9 @@ never `overridden-settings`).
   in per-resolution subfolders, so cloning the repo into `/boot/grub/themes` doesn't work. After a menu entry is
   picked, the theme is gone and `05_debian_theme`'s background shows (desktop-base's blue one unless
   `GRUB_BACKGROUND` is set). `/boot/grub/grub.cfg` is root-only (0600): Claude can't read it, ask the user.
+- **The Linux console can't show Nerd Font icons** (kernel fonts: max 512 glyphs, PSF only; missing chars show
+  as a diamond). kmscon is not in Debian 13; fbterm has no true colour. Hence cage + kitty on tty logins.
+  Not tested from Claude (no tty access): ask the user how it behaves.
 - **Ptyxis 48 can't draw images**: VTE 0.80 has sixel built in, but Ptyxis never calls
   `vte_terminal_set_enable_sixel` (DA1 reply `61;1;21;22;28`, no `4`), and VTE has no kitty graphics protocol.
 - Notebooks: jupytext.nvim's `output_extension = "auto"` makes it call `jupytext --to auto:...`, which fails on Colab
