@@ -155,7 +155,8 @@ nvme0n1   p1  1 GB    EFI (shared with Ubuntu)
 - **zram swap** (half of RAM, max 8 GB, zstd) instead of a swap partition. Ubuntu's unencrypted swap is kept out
   of Debian twice: it's commented out of fstab and `systemd-gpt-auto-generator` is masked.
 - **GRUB** lists Ubuntu (os-prober) and wears the [Space Isolation](https://github.com/callmenoodles/space-isolation)
-  theme (optional, [`38-grub-theme.sh`](38-grub-theme.sh)), whose background also stays up behind the
+  theme (optional, [`38-grub-theme.sh`](38-grub-theme.sh); its 1920×1080 build with the 2560×1440 build's bigger
+  fonts), whose background also stays up behind the
   "Loading Linux …" lines. **[`90-absorb-ubuntu.sh`](90-absorb-ubuntu.sh)** later removes Ubuntu and grows
   Debian into one ~650 GB encrypted partition *while Debian keeps running*. It's resumable after a crash,
   and it verifies the initramfs before any reboot.
@@ -325,7 +326,7 @@ execute bit. Every script is idempotent: it checks state first, keeps `.bak` cop
 | [`35-thai-font.sh`](35-thai-font.sh) | user | Sarabun + fontconfig rule, verified with `fc-match -s` |
 | [`36-terminal-look.sh`](36-terminal-look.sh) | user | Ptyxis profile (Gooey, 70%), fastfetch, cava, zshrc |
 | [`37-desktop-look.sh`](37-desktop-look.sh) | user | Blur my Shell + Tiling Shell settings, icons, wallpaper, GTK4 CSS, Firefox, ONLYOFFICE, Neovim colours |
-| [`38-grub-theme.sh`](38-grub-theme.sh) | `sudo`, optional | Space Isolation GRUB theme (sha256-pinned release), also as the "Loading …" background; checks `grub.cfg` |
+| [`38-grub-theme.sh`](38-grub-theme.sh) | `sudo`, optional | Space Isolation GRUB theme (sha256-pinned releases, 1920×1080 background + 2560×1440 fonts/layout from [`dotfiles/grub`](dotfiles/grub)), also as the "Loading …" background; checks `grub.cfg` |
 | [`39-fingerprint.sh`](39-fingerprint.sh) `<user>` | `sudo`, optional | fprintd, enrolls a finger, fingerprint for `sudo`/`su`/polkit; Ly stays password-only |
 | [`40-stm32cubeide.sh`](40-stm32cubeide.sh) | user | STM32CubeIDE from ST's installer, Xwayland wrapper, udev rules |
 | [`41-packettracer.sh`](41-packettracer.sh) | user | Packet Tracer 9 from the Ubuntu `.deb` |

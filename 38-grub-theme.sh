@@ -6,11 +6,17 @@
 # falls back to the native mode if the firmware has no 1920x1080 (the menu is placed in percentages).
 # GRUB_BACKGROUND is the theme's own picture: without it Debian's /etc/grub.d/05_debian_theme puts
 # desktop-base's blue wallpaper behind the "Loading Linux ..." lines once the menu is gone.
+# Text size: the 1920x1080 build's fonts were too small on this screen, so the menu uses the 2560x1440 build's
+# fonts and layout (dotfiles/grub/space-isolation-theme.txt, 1.33x bigger) on the 1920x1080 background.
 set -euo pipefail
 [[ $EUID -eq 0 ]] || { echo "run with sudo"; exit 1; }
 VER=v0.2.0
 URL=https://github.com/callmenoodles/space-isolation/releases/download/$VER/space-isolation-1920x1080.tar.gz
 SHA256=02dddc62324bfc03b77311d7c39029ef42e0a0a75b0e05a8cfb81269ce3fbb8c
+URL_BIG=https://github.com/callmenoodles/space-isolation/releases/download/$VER/space-isolation-2560x1440.tar.gz
+SHA256_BIG=6f9585f55d222fd20a1b12210c4c55774d6be6fba6e9aa80506831c1ee22a20f
+THEME_TXT=$(dirname "$(readlink -f "$0")")/dotfiles/grub/space-isolation-theme.txt
+[[ -f $THEME_TXT ]] || { echo "!! $THEME_TXT is missing - run this from the repo folder"; exit 1; }
 DIR=/boot/grub/themes/space-isolation
 CONF=/etc/default/grub
 TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
@@ -38,6 +44,13 @@ curl -fsSL -o "$TMP/theme.tar.gz" "$URL"
 echo "$SHA256  $TMP/theme.tar.gz" | sha256sum -c --quiet
 tar xzf "$TMP/theme.tar.gz" --no-same-owner -C "$TMP"
 [[ -f $TMP/1920x1080/theme.txt ]] || { echo "!! no 1920x1080/theme.txt in the release tarball"; exit 1; }
+# Bigger text: the 2560x1440 build's fonts + highlight bar and its layout (dotfiles/grub) on the 1920x1080 background.
+curl -fsSL -o "$TMP/big.tar.gz" "$URL_BIG"
+echo "$SHA256_BIG  $TMP/big.tar.gz" | sha256sum -c --quiet
+tar xzf "$TMP/big.tar.gz" --no-same-owner -C "$TMP"
+rm -f "$TMP"/1920x1080/*.pf2
+cp "$TMP"/2560x1440/{funnel_sans-semibold-28.pf2,funnel_sans-semibold-29.pf2,teko-40.pf2,sevastopol_interface-32.pf2,selected_item_c.png} "$TMP/1920x1080/"
+cp "$THEME_TXT" "$TMP/1920x1080/theme.txt"
 if diff -rq "$TMP/1920x1080" "$DIR" >/dev/null 2>&1; then
   echo "  already installed ($VER)"
 else

@@ -105,7 +105,9 @@ fstab uses `UUID=<btrfs fs uuid>`. Snapper snapshots only `/` (apt pre/post, kee
   - Papirus-Dark icons, Cantarell 12, 24h clock, battery %, wallpaper `wallhaven-72mrmv.jpg` (sha256-pinned,
     downloaded at install time - never commit the image).
   - GRUB: **Space Isolation** theme (2026-10-01, 38-grub-theme.sh), 1920x1080 build with `GRUB_GFXMODE=1920x1080,auto`
-    (the screen is 2240x1400; no matching build exists).
+    (the screen is 2240x1400; no matching build exists). Text 1.33x bigger (2026-10-13): fonts + highlight bar
+    from the 2560x1440 tarball, layout = `dotfiles/grub/space-isolation-theme.txt` (2560 layout, "Booting" + countdown
+    moved 50 px left). Not yet run on the laptop.
   - NOT themed, on purpose: Claude desktop and Discord (Electron; would need app.asar patching / a ToS-breaking
     client mod - user declined), GTK3 apps (Disks). STM32CubeIDE colours are per-workspace prefs, done by hand in
     `~/Documents/2026a-repo/embedded-sys-lab-workspace` (keys include `org.eclipse.ui.r30.`); panels stay #2F2F2F.
@@ -124,7 +126,7 @@ fstab uses `UUID=<btrfs fs uuid>`. Snapper snapshots only `/` (apt pre/post, kee
 | `35-thai-font.sh` | **user, no sudo** | Sarabun TTFs (Google Fonts) + `~/.config/fontconfig/conf.d/60-thai-sarabun.conf`; called by 30 |
 | `36-terminal-look.sh` | **user** (sudo only for missing pkgs) | ptyxis/fastfetch/cava + kitty/imagemagick, Ptyxis profile via `dconf write` + read-back, `~/.config/xdg-terminals.list`, installs fastfetch/cava/kitty configs + zshrc (.bak if different), `nvim-notebook.desktop` as the .ipynb default; called by 30 |
 | `37-desktop-look.sh` | **user** (sudo only if no Papirus icons) | `dconf load` Blur my Shell + Tiling Shell layouts (verified key by key), interface keys, wallpaper, gtk.css, nvim colorscheme, Firefox profile files, ONLYOFFICE theme; called by 30. Needs a Firefox ESR profile (start Firefox once) |
-| `38-grub-theme.sh` | `sudo`, optional | Space Isolation GRUB theme v0.2.0 (1920x1080 release tarball, sha256-pinned) → `/boot/grub/themes/space-isolation`; sets GRUB_THEME/BACKGROUND/TERMINAL_OUTPUT/GFXMODE (by sourced value, so quoting differences don't count), update-grub, checks grub.cfg |
+| `38-grub-theme.sh` | `sudo`, optional | Space Isolation GRUB theme v0.2.0 (1920x1080 + 2560x1440 release tarballs, sha256-pinned; bigger-font theme.txt from dotfiles/grub) → `/boot/grub/themes/space-isolation`; sets GRUB_THEME/BACKGROUND/TERMINAL_OUTPUT/GFXMODE (by sourced value, so quoting differences don't count), update-grub, checks grub.cfg |
 | `39-fingerprint.sh <user>` | `sudo`, optional | fprintd + libpam-fprintd, makes `/etc/pam.d/ly` password-only (`.bak`, checked), enrolls `$FINGER` if none, `pam-auth-update --enable fprintd` (profile is `Default: no`), reads common-auth back |
 | `40-stm32cubeide.sh`, `41-packettracer.sh` | user | need the user's own downloads (st.com / NetAcad logins) |
 | `42-bitwarden.sh` | `sudo`, optional | Bitwarden desktop official `.deb` from GitHub releases (version + sha256 pinned; skipped if the installed one is newer - it self-updates via electron-updater + pkexec) + `dotfiles/polkit/com.bitwarden.Bitwarden.policy` → `/usr/share/polkit-1/actions/`, checked with `pkaction` |
@@ -132,7 +134,7 @@ fstab uses `UUID=<btrfs fs uuid>`. Snapper snapshots only `/` (apt pre/post, kee
 
 `dotfiles/` mirrors the live files: `zshrc`, `fastfetch/`, `cava/`, `nvim/lua/plugins/` (colorscheme, notebook, cpp,
 web, markdown) + `nvim/.markdownlint-cli2.yaml`, `gnome-shell/extensions/`, `dconf/`, `gtk-4.0/`, `firefox/`, `onlyoffice/`, `systemd/`, `jupytext/`, `kitty/`, `applications/`,
-`polkit/` (Bitwarden's unlock action, copied verbatim from the app's `app.asar`).
+`grub/`, `polkit/` (Bitwarden's unlock action, copied verbatim from the app's `app.asar`).
 When the user tweaks the look by hand, copy the live file back into `dotfiles/` (`dconf dump` for dconf dirs;
 drop internal keys like `rounded-blur-found`, and for Tiling Shell keep only `layouts-json`/`selected-layouts`,
 never `overridden-settings`).
