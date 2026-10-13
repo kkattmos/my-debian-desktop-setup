@@ -70,7 +70,8 @@ fstab uses `UUID=<btrfs fs uuid>`. Snapper snapshots only `/` (apt pre/post, kee
   (`-o login`, `$TTY == /dev/tty[0-9]*`, `XDG_SESSION_TYPE == tty`; not run in a loop, Ctrl+D = plain console;
   errors in `~/.cache/cage.log`); cage is in 36's package list. Ly session **"Kitty"**
   (`dotfiles/wayland-sessions/kitty.desktop` → `/usr/share/wayland-sessions/`, installed by 36 with sudo): same
-  cage + kitty, picked once in Ly's session list (Ly saves it in `/etc/ly/save.txt`); quitting kitty returns to Ly. `tty.lua`: when `TERM=linux`, mini.icons ascii +
+  cage + kitty, picked in Ly's session list; quitting kitty returns to Ly. Installed on the laptop 2026-10-13: list is
+  0 shell, 1 gnome-wayland, 2 gnome, 3 kitty; saved `kkattmos:2` = GNOME, so the default stayed GNOME. `tty.lua`: when `TERM=linux`, mini.icons ascii +
   every LazyVim/snacks-picker icon stripped to ASCII, plain lualine/bufferline/gitsigns/which-key/noice symbols.
   Console font (by hand, not scripted): `/etc/default/console-setup` TerminusBold 14x28.
 - Shell: plain zsh + **Powerlevel10k** (git clone to `~/.local/share/powerlevel10k`, no oh-my-zsh; user wanted the
@@ -260,6 +261,10 @@ never `overridden-settings`).
   in per-resolution subfolders, so cloning the repo into `/boot/grub/themes` doesn't work. After a menu entry is
   picked, the theme is gone and `05_debian_theme`'s background shows (desktop-base's blue one unless
   `GRUB_BACKGROUND` is set). `/boot/grub/grub.cfg` is root-only (0600): Claude can't read it, ask the user.
+- **Ly saves the session as a list POSITION, not a name** (`/etc/ly/save.txt`: line 1 = last user index, then
+  `user:session_index`). List = shell first (x11/xinitrc off), then each session dir in raw readdir order (unsorted):
+  check with `python3 -c 'import os; print(os.listdir("/usr/share/wayland-sessions"))'`. Adding or removing a
+  session file can shift the positions and silently change the preselected session.
 - **The Linux console can't show Nerd Font icons** (kernel fonts: max 512 glyphs, PSF only; missing chars show
   as a diamond). kmscon is not in Debian 13; fbterm has no true colour. Hence cage + kitty on tty logins.
   Not tested from Claude (no tty access): ask the user how it behaves.

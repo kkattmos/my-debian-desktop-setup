@@ -86,6 +86,10 @@ echo "== \"Kitty\" session in Ly's session list (kitty full-screen via cage, no 
 SESS=/usr/share/wayland-sessions/kitty.desktop
 if cmp -s "$DOT/wayland-sessions/kitty.desktop" "$SESS"; then echo "  $SESS already installed"
 else sudo install -m 644 "$DOT/wayland-sessions/kitty.desktop" "$SESS" && echo "  $SESS"; fi
+# Ly remembers the last session by its POSITION in the list (shell first, then this folder in raw readdir order),
+# so a new file can shift what is preselected: show the order so the user can check the Ly screen.
+echo "  Ly's session list now: shell $(python3 -c 'import os; print(" ".join(os.listdir("/usr/share/wayland-sessions")))')"
+echo "  (at the next Ly login, check the session line says GNOME before logging in)"
 
 echo
 echo "Done. Open Ptyxis (Activities -> Terminal / Ptyxis). fastfetch runs at the top of each new tab;"
