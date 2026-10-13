@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Kitty
+Comment=kitty full-screen in the cage compositor, no GNOME (quit kitty to get back to Ly)
+Exec=cage -- kitty -o background_opacity=1
+Type=Application
+DesktopNames=cage

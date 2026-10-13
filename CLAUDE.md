@@ -68,7 +68,9 @@ fstab uses `UUID=<btrfs fs uuid>`. Snapper snapshots only `/` (apt pre/post, kee
   is set, else plots pop up in Loupe. Ptyxis stays the default terminal. kitty is on the blur whitelist.
   Text consoles (2026-10-13): zshrc starts `cage -- kitty -o background_opacity=1` on a tty login
   (`-o login`, `$TTY == /dev/tty[0-9]*`, `XDG_SESSION_TYPE == tty`; not run in a loop, Ctrl+D = plain console;
-  errors in `~/.cache/cage.log`); cage is in 36's package list. `tty.lua`: when `TERM=linux`, mini.icons ascii +
+  errors in `~/.cache/cage.log`); cage is in 36's package list. Ly session **"Kitty"**
+  (`dotfiles/wayland-sessions/kitty.desktop` → `/usr/share/wayland-sessions/`, installed by 36 with sudo): same
+  cage + kitty, picked once in Ly's session list (Ly saves it in `/etc/ly/save.txt`); quitting kitty returns to Ly. `tty.lua`: when `TERM=linux`, mini.icons ascii +
   every LazyVim/snacks-picker icon stripped to ASCII, plain lualine/bufferline/gitsigns/which-key/noice symbols.
   Console font (by hand, not scripted): `/etc/default/console-setup` TerminusBold 14x28.
 - Shell: plain zsh + **Powerlevel10k** (git clone to `~/.local/share/powerlevel10k`, no oh-my-zsh; user wanted the
@@ -139,7 +141,7 @@ fstab uses `UUID=<btrfs fs uuid>`. Snapper snapshots only `/` (apt pre/post, kee
 
 `dotfiles/` mirrors the live files: `zshrc`, `fastfetch/`, `cava/`, `nvim/lua/plugins/` (colorscheme, notebook, cpp,
 web, markdown, tty) + `nvim/.markdownlint-cli2.yaml`, `gnome-shell/extensions/`, `dconf/`, `gtk-4.0/`, `firefox/`, `onlyoffice/`, `systemd/`, `jupytext/`, `kitty/`, `applications/`,
-`grub/`, `polkit/` (Bitwarden's unlock action, copied verbatim from the app's `app.asar`).
+`grub/`, `wayland-sessions/`, `polkit/` (Bitwarden's unlock action, copied verbatim from the app's `app.asar`).
 When the user tweaks the look by hand, copy the live file back into `dotfiles/` (`dconf dump` for dconf dirs;
 drop internal keys like `rounded-blur-found`, and for Tiling Shell keep only `layouts-json`/`selected-layouts`,
 never `overridden-settings`).

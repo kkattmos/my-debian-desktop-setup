@@ -82,6 +82,11 @@ update-desktop-database ~/.local/share/applications 2>/dev/null || true
 xdg-mime default nvim-notebook.desktop application/x-ipynb+json
 echo "  .ipynb opens with: $(xdg-mime query default application/x-ipynb+json)"
 
+echo "== \"Kitty\" session in Ly's session list (kitty full-screen via cage, no GNOME; Ly remembers the choice)"
+SESS=/usr/share/wayland-sessions/kitty.desktop
+if cmp -s "$DOT/wayland-sessions/kitty.desktop" "$SESS"; then echo "  $SESS already installed"
+else sudo install -m 644 "$DOT/wayland-sessions/kitty.desktop" "$SESS" && echo "  $SESS"; fi
+
 echo
 echo "Done. Open Ptyxis (Activities -> Terminal / Ptyxis). fastfetch runs at the top of each new tab;"
 echo "turn that off in ~/.zshrc (FASTFETCH_ON_START=0). Audio bars: cava. Notebooks: nb x.ipynb"

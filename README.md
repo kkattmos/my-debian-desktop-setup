@@ -136,7 +136,7 @@ appeared 10-60 s after login instead of ~2 s. `31-gnome-settings.sh` installs v7
 - **Gooey colour scheme** with a transparent background, and `:terminal` uses the same ANSI colours as Ptyxis.
 - **Text consoles** (`Ctrl+Alt+F3`…): logging in starts kitty full-screen through the
   [cage](https://github.com/cage-kiosk/cage) compositor, so Nerd Font icons and true colour work without GNOME
-  (quit kitty for the plain console). In the plain console LazyVim swaps its icons for ASCII letters (`tty.lua`).
+  (quit kitty for the plain console). Ly also gets a **Kitty** session next to GNOME for the same thing. In the plain console LazyVim swaps its icons for ASCII letters (`tty.lua`).
 - A printable two-page cheat sheet: [`neovim-cheatsheet.pdf`](neovim-cheatsheet.pdf).
 
 ### Filesystem and boot
