@@ -49,6 +49,21 @@ m["version"] = 9999
 json.dump(m, open(p, "w"), indent=2); open(p, "a").write("\n")
 EOF
   fi
+  if [[ $UUID == blur-my-shell@aunetx ]]; then
+    # v72's overview.js hides the window actor of every window on a non-active workspace after each workspace
+    # switch (app blur on). With workspaces-only-on-primary, windows on an external screen count as being on all
+    # workspaces: they vanished on the first switch. Skip those (is_on_all_workspaces also covers "always on top").
+    python3 - "$DEST/components/overview.js" <<'EOF'
+import sys
+p = sys.argv[1]; s = open(p).read()
+old = "window => window.get_compositor_private().hide()"
+new = "window => { if (!window.is_on_all_workspaces()) window.get_compositor_private().hide(); }"
+if new not in s:
+    if s.count(old) != 1: sys.exit("!! blur-my-shell overview.js: patch target not found exactly once")
+    open(p, "w").write(s.replace(old, new))
+EOF
+    echo "  patched blur-my-shell overview.js (windows on all workspaces stay visible)"
+  fi
   python3 -c 'import json,sys; m=json.load(open(sys.argv[1])); print("  installed", m["uuid"], "for GNOME", ", ".join(m["shell-version"]))' "$DEST/metadata.json"
 done
 for UUID in "${OWN_UUIDS[@]}"; do

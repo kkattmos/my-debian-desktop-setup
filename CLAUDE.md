@@ -256,6 +256,14 @@ never `overridden-settings`).
   v74 copy kept at `~/.local/share/gnome-shell/blur-my-shell@aunetx.v74.bak`. Login timing: `journalctl --user -b`
   lines "extension is enabled" → "GNOME Shell started" (normal ~1-2 s). Debian's binaries have no frame pointers,
   so sysprof stacks are shallow; record a login from a TTY with `sudo sysprof-cli` (needs auth, file is root 0640).
+- **Windows on the external screen vanished after a workspace switch** (2026-10-24; GNOME 48.7 Wayland, DP monitor,
+  `workspaces-only-on-primary=true`, so external-screen windows are on all workspaces). Cause: Blur my Shell v72
+  `components/overview.js` patches `_finishWorkspaceSwitch` to `hide()` the actor of every window on a non-active
+  workspace whenever `applications.blur` is on; that includes those windows, and nothing re-shows them (dragging does,
+  then it hides again). Found by elimination: Tiling Shell off = still broken, Blur my Shell off = fine,
+  `applications/blur false` = fine. Fix: 31 patches that line to skip `window.is_on_all_workspaces()`; the shell
+  caches extension modules, so it needs a re-login. Re-check if the pin moves off v72 (`blur-on-overview` code in
+  `applications.js` has a similar hide, off by default).
 - GRUB theme: `GRUB_THEME` must point at a `theme.txt` that exists - Debian's `00_header` silently drops the theme
   otherwise (no error; look for `Found theme:` in the update-grub output). The space-isolation repo keeps `theme.txt`
   in per-resolution subfolders, so cloning the repo into `/boot/grub/themes` doesn't work. After a menu entry is
