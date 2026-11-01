@@ -98,6 +98,14 @@ appeared 10-60 s after login instead of ~2 s. `31-gnome-settings.sh` installs v7
   Alt+Tab-style switcher on ``Ctrl+` `` (the key above Tab).
 - **Workspace Label:** another extension of mine. It shows the current workspace's name next to
   Activities; click it to jump to a workspace or rename it.
+- **Alt+Tab shows windows, not apps,** and only those on the current workspace (`Super+Tab` keeps
+  GNOME's app switcher).
+- **Tidy Session:** a third extension of mine. `Super+B` opens a new Firefox window, `Super+C` brings Claude
+  to the current workspace with a new chat. Before Power Off / Restart / Log Out it sends every Firefox tab
+  to [OneTab](https://www.one-tab.com/) and closes Firefox and Claude cleanly, so the next boot starts
+  with one clean window instead of a crash-restore. One-time step: in Firefox, `about:addons` → gear →
+  *Manage Extension Shortcuts* → OneTab → *Send all tabs in all windows to OneTab* = `Alt+Shift+F12`.
+  If OneTab doesn't take the tabs (shortcut not set, pinned tabs), Firefox is left alone and restores them as before.
 - **Screen recording** built in: `Ctrl+Shift+Alt+R`.
 
 ### Terminal and shell
@@ -345,7 +353,7 @@ dotfiles/
 ├── jupytext/jupytext.toml       ~/.config/jupytext (hides the notebook header in Neovim)
 ├── kitty/kitty.conf             kitty in the Gooey look, the terminal for notebooks (inline plots)
 ├── applications/                nvim-notebook.desktop: .ipynb files open in Neovim in kitty
-├── gnome-shell/extensions/      Gooey Shell + Workspace Label (my own extensions)
+├── gnome-shell/extensions/      Gooey Shell + Workspace Label + Tidy Session (my own extensions)
 ├── dconf/                       Blur my Shell and Tiling Shell settings (dconf load)
 ├── gtk-4.0/gtk.css              Gooey for every libadwaita app
 ├── firefox/                     user.js + chrome/userChrome.css, userContent.css
@@ -363,6 +371,8 @@ dotfiles/
 | Switch workspace / move window there | `Super+1…4` / `Super+Shift+1…4` |
 | Workspace switcher | ``Ctrl+` `` (add `Shift` to go backwards) |
 | Snap window into a tile | hold `Ctrl` while dragging |
+| Switch windows on this workspace | `Alt+Tab` (apps on all workspaces: `Super+Tab`) |
+| New Firefox window / Claude here | `Super+B` / `Super+C` |
 | Thai / English keyboard | `Super+Space` |
 | Record the screen | `Ctrl+Shift+Alt+R` |
 | Update with snapshots | `update`, then `snaps` to list them |

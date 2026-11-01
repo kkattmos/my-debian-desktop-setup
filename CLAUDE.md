@@ -105,6 +105,13 @@ fstab uses `UUID=<btrfs fs uuid>`. Snapper snapshots only `/` (apt pre/post, kee
   - Own extension **`workspace-label@kkattmos`** (workspace name in the top bar, click to rename).
   - Also enabled: **Switch Workspace** (`switchWorkSpace@sun.wxg@gmail.com`, `Ctrl+Above_Tab`).
     `System_Monitor@bghome.gmail.com` is a stale enabled-list entry with no files; 31 drops it.
+  - Own extension **`tidy-session@kkattmos`** (2026-11-01): `Super+B` = `firefox-esr --new-window`, `Super+C` = move
+    Claude's single window to this workspace + `claude://claude.ai/new` (Claude has `SingleMainWindow`, no new windows).
+    Wraps `EndSessionDialog.prototype._confirm` (all of Power Off/Restart/Log Out + countdown): focus Firefox, press
+    `Shift+Alt+F12` via a Clutter virtual keyboard (OneTab "all windows" command; key set by hand in Firefox, F12 because
+    Thai layout has no Latin letters), wait for one window titled `OneTab*`, then `request_quit()`; if that check fails,
+    Firefox is left to be killed so its crash restore keeps the tabs. Then Claude `request_quit()`. Reason: Firefox
+    treats the session-end kill as a crash and restored every old tab. Alt+Tab = `switch-windows` (31 defaults).
   - Firefox ESR: `user.js` + `chrome/userChrome.css` (solid navy header, `#browser` 70% navy) + `userContent.css`.
     The user's Kanagawa Wave theme stays installed; overrides need `!important`. (After the ESR 153 upgrade the
     active theme was "System theme — auto", Kanagawa disabled; the CSS works with either.)
@@ -127,7 +134,7 @@ fstab uses `UUID=<btrfs fs uuid>`. Snapper snapshots only `/` (apt pre/post, kee
 | `10-system.sh <user>` | `sudo`, twice | run 1: Btrfs subvolumes + compression + disable Ubuntu swap, reboot; run 2: everything else |
 | `20-wifi.sh` | user | ChulaWiFi + eduroam + home Wi-Fi via nmcli (system-owned secrets); no SSIDs in the file |
 | `30-user.sh` | **user, no sudo** | zsh, Nerd Font, Neovim/LazyVim, calls 35/31/36/37, Tailscale, SeaDrive (URL asked, no default), PhotoPrism |
-| `31-gnome-settings.sh` | **user, no sudo** | installs 3 e.g.o extensions (Tiling Shell, Blur my Shell **pinned v72** via `PINNED`, Switch Workspace) + 2 own ones from `dotfiles/gnome-shell/extensions`; GNOME settings as dconf system defaults |
+| `31-gnome-settings.sh` | **user, no sudo** | installs 3 e.g.o extensions (Tiling Shell, Blur my Shell **pinned v72** via `PINNED`, Switch Workspace) + 3 own ones from `dotfiles/gnome-shell/extensions`; GNOME settings as dconf system defaults |
 | `32-check.sh` | user | read-only status report - ask the user for its output first when debugging |
 | `33-clean-root-leftovers.sh` | `sudo` | one-off: removes what an accidental `sudo bash 30-user.sh` put in /root |
 | `34-no-ubuntu-swap.sh` | `sudo` | one-off: masks systemd-gpt-auto-generator (/dev/null symlink), swapoff p6; 10-system.sh now does this too |
@@ -171,6 +178,8 @@ never `overridden-settings`).
 - 2026-10-08: slow logins traced to Blur my Shell v74; laptop rolled back to pinned v72 (same files as 31 installs).
   A temporary tracer `login-trace.service` (user unit, `~/.local/bin/login-trace.sh`, logs in `~/login-trace/`) is
   still enabled - not part of the repo; remove when no longer needed.
+- 2026-11-01: Tidy Session + Alt+Tab applied live without sudo (extension copied + added to the user's
+  enabled-extensions, loads at next login; keybindings set per user). Not yet tested; the OneTab shortcut must be set by hand.
 - Not yet done: 20-wifi.sh (profiles exist, created by hand), 40/41 course tools via the scripts, 90 (Ubuntu still kept).
   guide.html has NOT been updated for 37 / Gooey yet (still says Tokyo Night, 88%).
 

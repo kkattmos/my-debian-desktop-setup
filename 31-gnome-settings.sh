@@ -2,7 +2,7 @@
 # GNOME settings + shell extensions, WITHOUT needing a D-Bus session:
 #  - the extensions are unzipped straight into ~/.local/share/gnome-shell/extensions:
 #    Tiling Shell, Blur my Shell, Switch Workspace (extensions.gnome.org) and the kit's own
-#    Gooey Shell + Workspace Label (dotfiles/gnome-shell/extensions)
+#    Gooey Shell + Workspace Label + Tidy Session (dotfiles/gnome-shell/extensions)
 #  - the settings become system-wide dconf defaults (/etc/dconf/db/local.d), written with sudo
 # Takes effect at the next login. Called by 30-user.sh; safe to run on its own any time:
 #   bash 31-gnome-settings.sh
@@ -13,7 +13,7 @@ KIT="$(cd "$(dirname "$0")" && pwd)"
 TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
 EXT=~/.local/share/gnome-shell/extensions
 EGO_UUIDS=(tilingshell@ferrarodomenico.com blur-my-shell@aunetx switchWorkSpace@sun.wxg@gmail.com)
-OWN_UUIDS=(gooey-dock@kkattmos workspace-label@kkattmos)   # gooey-dock = "Gooey Shell" (renaming the uuid breaks a running shell)
+OWN_UUIDS=(gooey-dock@kkattmos workspace-label@kkattmos tidy-session@kkattmos)   # gooey-dock = "Gooey Shell" (renaming the uuid breaks a running shell)
 ALL=$(printf "'%s', " "${EGO_UUIDS[@]}" "${OWN_UUIDS[@]}"); ALL="[${ALL%, }]"
 
 # Pinned versions: "<zip url> <sha256>". Blur my Shell v74 (auto-updated 2026-10-06) keeps the shell's main
@@ -104,6 +104,12 @@ move-to-workspace-1=['<Super><Shift>1']
 move-to-workspace-2=['<Super><Shift>2']
 move-to-workspace-3=['<Super><Shift>3']
 move-to-workspace-4=['<Super><Shift>4']
+# Alt+Tab = window thumbnails of this workspace only (window-switcher current-workspace-only is on by default);
+# the app switcher (icons, all workspaces) stays on Super+Tab
+switch-windows=['<Alt>Tab']
+switch-windows-backward=['<Shift><Alt>Tab']
+switch-applications=['<Super>Tab']
+switch-applications-backward=['<Shift><Super>Tab']
 
 [org/gnome/shell/keybindings]
 switch-to-application-1=@as []
@@ -138,6 +144,8 @@ check org.gnome.desktop.interface monospace-font-name "'JetBrainsMono Nerd Font 
 check org.gnome.mutter dynamic-workspaces "false"
 check org.gnome.desktop.wm.preferences num-workspaces "4"
 check org.gnome.desktop.wm.keybindings switch-to-workspace-1 "['<Super>1']"
+check org.gnome.desktop.wm.keybindings switch-windows "['<Alt>Tab']"
+check org.gnome.desktop.wm.keybindings switch-applications "['<Super>Tab']"
 if (( BAD )); then
   echo
   echo "!! Some settings above are still wrong. A per-user value can only be reset from inside the"

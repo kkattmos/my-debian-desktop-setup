@@ -1,0 +1,7 @@
+{
+  "uuid": "tidy-session@kkattmos",
+  "name": "Tidy Session",
+  "description": "Super+B opens a new Firefox window, Super+C brings Claude to this workspace with a new chat. Before Power Off / Restart / Log Out, all Firefox tabs go to OneTab and Firefox and Claude are closed cleanly.",
+  "shell-version": ["48"],
+  "version": 1
+}
